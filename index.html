@@ -1,0 +1,2003 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sahil's Command Center</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0b0f1a;
+  --bg1: #111827;
+  --bg2: #1a2234;
+  --bg3: #212d42;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.13);
+  --t1: #e8edf8;
+  --t2: #7a8aaa;
+  --t3: #3d4a62;
+  --green: #10b981;
+  --green-l: rgba(16,185,129,0.12);
+  --blue: #3b82f6;
+  --blue-l: rgba(59,130,246,0.12);
+  --amber: #f59e0b;
+  --amber-l: rgba(245,158,11,0.12);
+  --red: #ef4444;
+  --red-l: rgba(239,68,68,0.1);
+  --purple: #8b5cf6;
+  --purple-l: rgba(139,92,246,0.1);
+  --cyan: #06b6d4;
+  --cyan-l: rgba(6,182,212,0.1);
+  --pink: #ec4899;
+  --mono: 'JetBrains Mono', monospace;
+  --ui: 'Plus Jakarta Sans', sans-serif;
+  --radius: 14px;
+  --radius-sm: 8px;
+}
+
+html, body { height: 100%; overflow: hidden; font-family: var(--ui); background: var(--bg); color: var(--t1); }
+
+/* ─── LAYOUT ─── */
+.app { display: grid; grid-template-rows: 52px 1fr; height: 100vh; }
+.body { display: grid; grid-template-columns: 220px 1fr; overflow: hidden; }
+.sidebar { background: var(--bg1); border-right: 1px solid var(--border); display: flex; flex-direction: column; overflow-y: auto; }
+.content { overflow-y: auto; background: var(--bg); }
+
+/* ─── TOPBAR ─── */
+.topbar {
+  background: var(--bg1); border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; padding: 0 20px; gap: 16px;
+  grid-column: 1/-1;
+}
+.tb-brand { display: flex; align-items: center; gap: 10px; min-width: 200px; }
+.tb-avatar {
+  width: 30px; height: 30px; border-radius: 8px;
+  background: linear-gradient(135deg, var(--blue), var(--purple));
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 13px; color: #fff; letter-spacing: -0.5px;
+}
+.tb-name { font-size: 14px; font-weight: 700; }
+.tb-sub { font-size: 10px; color: var(--t3); font-family: var(--mono); }
+.tb-center { flex: 1; display: flex; align-items: center; gap: 8px; justify-content: center; }
+.tb-phase {
+  background: var(--green-l); border: 1px solid rgba(16,185,129,0.25);
+  border-radius: 20px; padding: 4px 14px; font-size: 11px; font-family: var(--mono);
+  color: var(--green); font-weight: 600; letter-spacing: 0.04em;
+}
+.tb-right { margin-left: auto; display: flex; align-items: center; gap: 16px; }
+.tb-clock { font-family: var(--mono); font-size: 12px; color: var(--t2); text-align: right; }
+.tb-clock .time { font-size: 16px; font-weight: 700; color: var(--t1); display: block; }
+
+/* ─── SIDEBAR ─── */
+.sb-section { padding: 14px 12px 6px; }
+.sb-sec-label { font-family: var(--mono); font-size: 9px; color: var(--t3); text-transform: uppercase; letter-spacing: 0.15em; padding: 0 8px; margin-bottom: 6px; }
+.nav-item {
+  display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: var(--radius-sm);
+  font-size: 13px; font-weight: 500; color: var(--t2); cursor: pointer;
+  transition: all 0.15s; border: 1px solid transparent; margin-bottom: 2px;
+}
+.nav-item:hover { color: var(--t1); background: var(--bg2); }
+.nav-item.active { color: var(--t1); background: var(--bg2); border-color: var(--border2); }
+.nav-item .icon { width: 16px; text-align: center; font-size: 14px; flex-shrink: 0; }
+.nav-item .dot { width: 6px; height: 6px; border-radius: 50%; margin-left: auto; flex-shrink: 0; }
+
+/* Sem progress in sidebar */
+.sb-sem-card {
+  margin: 12px; background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 12px;
+}
+.sb-sem-title { font-size: 11px; font-weight: 700; margin-bottom: 3px; }
+.sb-sem-theme { font-size: 10px; color: var(--green); font-family: var(--mono); margin-bottom: 8px; }
+.sem-steps { display: flex; gap: 3px; }
+.sem-step { flex: 1; height: 3px; border-radius: 2px; background: var(--bg3); }
+.sem-step.done { background: var(--green); }
+.sem-step.active { background: var(--blue); animation: pulse-bar 2s infinite; }
+@keyframes pulse-bar { 0%,100%{opacity:1} 50%{opacity:0.5} }
+.sb-countdown { margin: 0 12px 12px; }
+.cd-label { font-size: 10px; color: var(--t3); font-family: var(--mono); margin-bottom: 4px; }
+.cd-value { font-size: 26px; font-weight: 800; color: var(--amber); line-height: 1; }
+.cd-sub { font-size: 9px; color: var(--t3); font-family: var(--mono); margin-top: 2px; }
+
+/* ─── PAGES ─── */
+.page { display: none; padding: 20px 24px; }
+.page.active { display: block; animation: fadein 0.25s ease; }
+@keyframes fadein { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
+.page-title { font-size: 22px; font-weight: 800; margin-bottom: 2px; }
+.page-sub { font-size: 12px; color: var(--t3); margin-bottom: 20px; }
+
+/* ─── GRID SYSTEMS ─── */
+.g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.g3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+.g4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; }
+.gcol { display: flex; flex-direction: column; gap: 14px; }
+.mb14 { margin-bottom: 14px; }
+
+/* ─── CARD ─── */
+.card {
+  background: var(--bg1); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px 18px; position: relative; overflow: hidden;
+  transition: border-color 0.2s;
+}
+.card:hover { border-color: var(--border2); }
+.card-title {
+  font-family: var(--mono); font-size: 9px; color: var(--t3);
+  text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 12px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.card-title span { color: var(--t2); font-size: 10px; letter-spacing: 0; font-family: var(--ui); }
+.card.green-glow { border-color: rgba(16,185,129,0.2); }
+.card.blue-glow { border-color: rgba(59,130,246,0.2); }
+.card.amber-glow { border-color: rgba(245,158,11,0.2); }
+
+/* ─── TODAY HERO ─── */
+.today-hero {
+  background: linear-gradient(135deg, var(--bg1) 0%, rgba(59,130,246,0.06) 100%);
+  border: 1px solid rgba(59,130,246,0.2);
+  border-radius: var(--radius); padding: 20px 22px; margin-bottom: 14px;
+  position: relative; overflow: hidden;
+}
+.today-hero::before {
+  content: ''; position: absolute; top: -30px; right: -30px;
+  width: 150px; height: 150px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(59,130,246,0.08), transparent 70%);
+}
+.hero-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 16px; }
+.hero-date { font-family: var(--mono); font-size: 10px; color: var(--t3); text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 4px; }
+.hero-greeting { font-size: 20px; font-weight: 800; line-height: 1.2; }
+.hero-greeting .highlight { color: var(--blue); }
+.hero-score-block { text-align: right; }
+.hero-score-num { font-size: 44px; font-weight: 800; line-height: 1; }
+.hero-score-label { font-family: var(--mono); font-size: 9px; color: var(--t3); margin-top: 2px; }
+.hero-focus-row {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 14px;
+  padding: 10px 14px; background: var(--bg2); border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+}
+.hero-focus-label { font-size: 11px; color: var(--t2); }
+.hero-focus-value { font-size: 13px; font-weight: 700; color: var(--t1); }
+.hero-focus-tag { margin-left: auto; font-family: var(--mono); font-size: 9px; }
+
+/* ─── TODAY SCHEDULE BLOCKS ─── */
+.schedule-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; }
+.sched-block {
+  border-radius: var(--radius-sm); padding: 12px; border: 1px solid var(--border);
+  background: var(--bg2); cursor: pointer; transition: all 0.15s; position: relative;
+}
+.sched-block:hover { border-color: var(--border2); transform: translateY(-2px); }
+.sched-block.completed { opacity: 0.5; }
+.sched-block.completed::after { content: '✓'; position: absolute; top: 8px; right: 10px; font-size: 14px; font-weight: 900; color: var(--green); }
+.sched-block .block-time { font-family: var(--mono); font-size: 9px; color: var(--t3); margin-bottom: 4px; }
+.sched-block .block-subject { font-size: 12px; font-weight: 700; margin-bottom: 2px; }
+.sched-block .block-task { font-size: 10px; color: var(--t2); line-height: 1.4; }
+.sched-block .block-duration {
+  display: inline-block; margin-top: 6px; font-family: var(--mono); font-size: 9px;
+  padding: 2px 7px; border-radius: 20px;
+}
+
+/* ─── STAT MINI ─── */
+.stat-mini {
+  background: var(--bg1); border: 1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 14px 16px; transition: all 0.15s;
+}
+.stat-mini:hover { border-color: var(--border2); transform: translateY(-1px); }
+.stat-num { font-size: 28px; font-weight: 800; line-height: 1; margin-bottom: 3px; }
+.stat-label { font-family: var(--mono); font-size: 9px; color: var(--t3); text-transform: uppercase; letter-spacing: 0.1em; }
+.stat-sub { font-size: 10px; color: var(--t2); margin-top: 4px; }
+
+/* ─── PROGRESS BAR ─── */
+.pb-row { margin-bottom: 10px; }
+.pb-header { display: flex; justify-content: space-between; font-size: 11px; color: var(--t2); margin-bottom: 5px; }
+.pb-header b { font-family: var(--mono); font-size: 10px; color: var(--t3); font-weight: 400; }
+.pb-track { background: var(--bg3); border-radius: 3px; height: 5px; overflow: hidden; }
+.pb-fill { height: 100%; border-radius: 3px; transition: width 0.8s ease; }
+.pb-green { background: linear-gradient(90deg, #059669, var(--green)); }
+.pb-blue { background: linear-gradient(90deg, #1d4ed8, var(--blue)); }
+.pb-amber { background: linear-gradient(90deg, #b45309, var(--amber)); }
+.pb-purple { background: linear-gradient(90deg, #6d28d9, var(--purple)); }
+.pb-cyan { background: linear-gradient(90deg, #0891b2, var(--cyan)); }
+
+/* ─── BADGE ─── */
+.badge { display: inline-flex; align-items: center; font-family: var(--mono); font-size: 9px; font-weight: 600; padding: 3px 8px; border-radius: 20px; letter-spacing: 0.04em; }
+.b-green { background: var(--green-l); color: var(--green); border: 1px solid rgba(16,185,129,0.2); }
+.b-blue { background: var(--blue-l); color: var(--blue); border: 1px solid rgba(59,130,246,0.2); }
+.b-amber { background: var(--amber-l); color: var(--amber); border: 1px solid rgba(245,158,11,0.2); }
+.b-red { background: var(--red-l); color: var(--red); border: 1px solid rgba(239,68,68,0.2); }
+.b-purple { background: var(--purple-l); color: var(--purple); border: 1px solid rgba(139,92,246,0.2); }
+.b-cyan { background: var(--cyan-l); color: var(--cyan); border: 1px solid rgba(6,182,212,0.2); }
+
+/* ─── FORMS ─── */
+.fl { font-family: var(--mono); font-size: 9px; color: var(--t3); text-transform: uppercase; letter-spacing: 0.1em; display: block; margin-bottom: 5px; }
+input[type=text], input[type=number], input[type=date], input[type=url], select, textarea {
+  width: 100%; background: var(--bg2); border: 1px solid var(--border2); border-radius: var(--radius-sm);
+  color: var(--t1); font-family: var(--ui); font-size: 12px; padding: 8px 11px; outline: none;
+  transition: border-color 0.2s;
+}
+input:focus, select:focus, textarea:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(59,130,246,0.08); }
+select option { background: var(--bg2); }
+textarea { resize: vertical; min-height: 60px; line-height: 1.5; }
+.fr { margin-bottom: 10px; }
+.fg2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.fg3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+
+/* ─── BUTTONS ─── */
+.btn { display: inline-flex; align-items: center; gap: 6px; font-family: var(--mono); font-size: 10px; font-weight: 700; letter-spacing: 0.06em; padding: 8px 16px; border-radius: var(--radius-sm); border: 1px solid var(--border2); background: var(--bg2); color: var(--t2); cursor: pointer; transition: all 0.15s; text-transform: uppercase; }
+.btn:hover { color: var(--t1); border-color: var(--border2); background: var(--bg3); }
+.btn.primary { background: var(--blue); color: #fff; border-color: var(--blue); box-shadow: 0 0 20px rgba(59,130,246,0.2); }
+.btn.primary:hover { background: #2563eb; }
+.btn.success { background: var(--green); color: #fff; border-color: var(--green); }
+.btn.sm { padding: 5px 12px; font-size: 9px; }
+.btn.danger { background: var(--red-l); color: var(--red); border-color: rgba(239,68,68,0.3); }
+.brow { display: flex; gap: 8px; margin-top: 12px; }
+
+/* ─── TASK ITEM ─── */
+.task-item { display: flex; align-items: center; gap: 10px; padding: 9px 12px; background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-sm); margin-bottom: 6px; transition: all 0.15s; animation: ti-slide 0.2s ease; }
+@keyframes ti-slide { from { opacity:0; transform: translateX(-6px); } to { opacity:1; transform:none; } }
+.task-item:hover { border-color: var(--border2); }
+.task-item.done { opacity: 0.4; }
+.task-cb { width: 18px; height: 18px; border-radius: 5px; border: 1.5px solid var(--border2); cursor: pointer; flex-shrink: 0; transition: all 0.15s; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 900; }
+.task-cb:hover { border-color: var(--green); }
+.task-cb.on { background: var(--green); border-color: var(--green); color: #fff; box-shadow: 0 0 10px rgba(16,185,129,0.3); }
+.task-name { flex: 1; font-size: 12px; font-weight: 500; }
+.task-name.done { text-decoration: line-through; color: var(--t3); }
+.task-del { background: none; border: none; color: var(--t3); cursor: pointer; font-size: 12px; padding: 2px 5px; border-radius: 4px; transition: all 0.15s; }
+.task-del:hover { background: var(--red-l); color: var(--red); }
+.primark { font-family: var(--mono); font-size: 8px; font-weight: 700; }
+
+/* ─── 7-DAY CHART ─── */
+.chart-bars { display: flex; align-items: flex-end; gap: 6px; height: 80px; }
+.bar { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; }
+.bar-fill { width: 100%; border-radius: 4px 4px 0 0; min-height: 3px; transition: height 0.6s ease; }
+.bar-lbl { font-family: var(--mono); font-size: 8px; color: var(--t3); }
+.bar-val { font-family: var(--mono); font-size: 7px; font-weight: 700; }
+
+/* ─── HABIT GRID ─── */
+.habit-scroll { overflow-x: auto; }
+.htable { border-collapse: collapse; min-width: 100%; }
+.htd { padding: 2px 3px; text-align: center; }
+.hth { font-family: var(--mono); font-size: 8px; color: var(--t3); padding: 3px 5px; text-align: center; }
+.hn { font-size: 11px; color: var(--t2); padding: 3px 10px 3px 0; white-space: nowrap; min-width: 120px; }
+.hdot { width: 20px; height: 20px; border-radius: 5px; border: 1px solid var(--border); background: var(--bg3); cursor: pointer; margin: auto; transition: all 0.12s; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 900; }
+.hdot:hover:not(.hf) { border-color: var(--green); transform: scale(1.1); }
+.hdot.hon { background: var(--green); border-color: var(--green); color: #fff; box-shadow: 0 0 8px rgba(16,185,129,0.3); }
+.hdot.hmiss { background: rgba(239,68,68,0.1); border-color: rgba(239,68,68,0.2); }
+.hdot.hf { opacity: 0.25; cursor: default; }
+
+/* ─── WEEK SCHEDULER ─── */
+.week-scheduler { display: grid; grid-template-columns: repeat(7,1fr); gap: 8px; }
+.day-col { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; }
+.day-header { padding: 8px 10px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+.day-name { font-family: var(--mono); font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; }
+.day-type-badge { font-size: 8px; }
+.day-blocks { padding: 6px; }
+.day-block { border-radius: 5px; padding: 6px 8px; margin-bottom: 4px; border-left: 2px solid; }
+.day-block .db-subj { font-size: 11px; font-weight: 600; }
+.day-block .db-dur { font-family: var(--mono); font-size: 9px; color: var(--t3); margin-top: 1px; }
+
+/* ─── DSA TRACKER ─── */
+.dsa-big { text-align: center; padding: 10px 0; }
+.dsa-num { font-size: 72px; font-weight: 800; color: var(--green); line-height: 1; animation: glow-pulse 3s infinite; }
+@keyframes glow-pulse { 0%,100%{text-shadow: 0 0 40px rgba(16,185,129,0.25)} 50%{text-shadow: 0 0 70px rgba(16,185,129,0.45)} }
+.dsa-qbtns { display: flex; gap: 8px; justify-content: center; margin-top: 12px; }
+.dsa-qbtn { background: var(--bg2); border: 1px solid var(--border2); border-radius: var(--radius-sm); color: var(--green); font-family: var(--mono); font-size: 13px; font-weight: 700; padding: 8px 20px; cursor: pointer; transition: all 0.15s; }
+.dsa-qbtn:hover { background: var(--green-l); border-color: rgba(16,185,129,0.3); transform: translateY(-2px); }
+.dsa-qbtn:active { transform: scale(0.96); }
+.diff-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+/* ─── POMODORO ─── */
+.pomo-wrap { position: relative; width: 110px; height: 110px; margin: 0 auto; }
+.pomo-wrap svg { width: 110px; height: 110px; transform: rotate(-90deg); }
+.pr-track { fill: none; stroke: var(--bg3); stroke-width: 8; }
+.pr-fill { fill: none; stroke-width: 8; stroke-linecap: round; transition: stroke-dashoffset 1s linear; }
+.pomo-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.pomo-time { font-family: var(--mono); font-size: 22px; font-weight: 700; line-height: 1; }
+.pomo-lbl { font-family: var(--mono); font-size: 8px; color: var(--t3); text-transform: uppercase; letter-spacing: 0.1em; margin-top: 2px; }
+.pomo-dots-row { display: flex; gap: 5px; justify-content: center; margin-top: 8px; }
+.pdot { width: 7px; height: 7px; border-radius: 50%; background: var(--bg3); border: 1px solid var(--border2); transition: all 0.3s; }
+.pdot.done { background: var(--blue); border-color: var(--blue); box-shadow: 0 0 6px rgba(59,130,246,0.4); }
+
+/* ─── STREAK ─── */
+.streak-dots { display: flex; flex-wrap: wrap; gap: 3px; }
+.sd { width: 14px; height: 14px; border-radius: 3px; cursor: pointer; transition: transform 0.12s; }
+.sd:hover { transform: scale(1.3); }
+.sd.hit { background: var(--green); box-shadow: 0 0 5px rgba(16,185,129,0.4); }
+.sd.miss { background: rgba(239,68,68,0.25); border: 1px solid rgba(239,68,68,0.3); }
+.sd.empty { background: var(--bg3); border: 1px solid var(--border); }
+
+/* ─── MONTH GOALS CARD ─── */
+.month-goal-item { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px; margin-bottom: 8px; transition: border-color 0.15s; }
+.month-goal-item:hover { border-color: var(--border2); }
+.mg-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 7px; }
+.mg-name { font-size: 12px; font-weight: 600; }
+.mg-ops { display: flex; gap: 5px; }
+.mg-op { background: var(--bg3); border: 1px solid var(--border); border-radius: 5px; color: var(--t2); font-family: var(--mono); font-size: 10px; padding: 3px 9px; cursor: pointer; transition: all 0.12s; }
+.mg-op:hover { border-color: var(--green); color: var(--green); }
+
+/* ─── WEEK SCHEDULE EDITOR ─── */
+.wse-block { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px; margin-bottom: 8px; }
+.wse-day-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.wse-day-name { font-family: var(--mono); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; }
+.wse-slot { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px solid var(--border); }
+.wse-slot:last-child { border-bottom: none; }
+.wse-slot-time { font-family: var(--mono); font-size: 10px; color: var(--t3); min-width: 45px; }
+.wse-slot input { flex: 1; }
+.wse-slot-dur { width: 55px; }
+
+/* ─── ROADMAP ─── */
+.rm-item { display: flex; gap: 14px; padding: 14px; background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-sm); margin-bottom: 8px; transition: border-color 0.15s; position: relative; }
+.rm-item:hover { border-color: var(--border2); }
+.rm-item.current { border-color: rgba(59,130,246,0.3); background: rgba(59,130,246,0.04); }
+.rm-dot { width: 28px; height: 28px; border-radius: 8px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 11px; font-weight: 700; }
+.rm-sem { font-weight: 700; font-size: 13px; margin-bottom: 2px; }
+.rm-theme { font-size: 11px; color: var(--t2); margin-bottom: 4px; }
+.rm-outcomes { font-family: var(--mono); font-size: 9px; color: var(--t3); }
+.rm-now-tag { position: absolute; right: 14px; top: 14px; font-family: var(--mono); font-size: 8px; color: var(--blue); border: 1px solid rgba(59,130,246,0.3); padding: 2px 7px; border-radius: 20px; }
+
+/* ─── ALERT BANNER ─── */
+.alert { padding: 10px 14px; border-radius: var(--radius-sm); font-size: 12px; margin-bottom: 12px; display: flex; align-items: center; gap: 10px; animation: ti-slide 0.3s ease; }
+.alert.danger { background: var(--red-l); border: 1px solid rgba(239,68,68,0.25); color: #fca5a5; }
+.alert.warn { background: var(--amber-l); border: 1px solid rgba(245,158,11,0.25); color: var(--amber); }
+.alert.success { background: var(--green-l); border: 1px solid rgba(16,185,129,0.25); color: var(--green); }
+
+/* ─── PROJECT ─── */
+.proj-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px; margin-bottom: 10px; border-left: 3px solid transparent; transition: all 0.15s; }
+.proj-card:hover { border-color: var(--border2); }
+.proj-card.deployed { border-left-color: var(--green); }
+.proj-card.building { border-left-color: var(--amber); }
+
+/* ─── AUDIT ─── */
+.aq { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px; margin-bottom: 8px; }
+.aq-q { font-size: 12px; font-weight: 500; margin-bottom: 8px; }
+.aq-btns { display: flex; gap: 6px; }
+.ab { flex: 1; padding: 6px; border-radius: 5px; border: 1px solid var(--border2); background: var(--bg3); color: var(--t3); font-family: var(--mono); font-size: 9px; cursor: pointer; transition: all 0.12s; text-transform: uppercase; letter-spacing: 0.05em; }
+.ab:hover { color: var(--t1); border-color: var(--border2); }
+.ab.y-on { background: var(--green-l); border-color: rgba(16,185,129,0.3); color: var(--green); }
+.ab.n-on { background: var(--red-l); border-color: rgba(239,68,68,0.3); color: var(--red); }
+
+/* ─── TOAST ─── */
+.toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: var(--bg2); border: 1px solid var(--border2); color: var(--t1); font-family: var(--mono); font-size: 10px; padding: 9px 20px; border-radius: 30px; z-index: 9999; box-shadow: 0 8px 32px rgba(0,0,0,0.5); animation: toast-in 0.3s ease; white-space: nowrap; }
+@keyframes toast-in { from { opacity:0; transform: translateX(-50%) translateY(8px); } to { opacity:1; transform: translateX(-50%) translateY(0); } }
+
+/* ─── PRINCIPLE CARD ─── */
+.principle-item { display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-sm); margin-bottom: 6px; }
+.pi-num { font-family: var(--mono); font-size: 11px; font-weight: 700; color: var(--t3); min-width: 20px; }
+.pi-text { font-size: 12px; color: var(--t2); line-height: 1.4; }
+
+/* ─── MENTOR TIP ─── */
+.mentor-tip { background: linear-gradient(135deg, rgba(139,92,246,0.08), rgba(59,130,246,0.05)); border: 1px solid rgba(139,92,246,0.2); border-radius: var(--radius-sm); padding: 14px; margin-bottom: 14px; }
+.mt-label { font-family: var(--mono); font-size: 9px; color: var(--purple); text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 5px; }
+.mt-text { font-size: 12px; color: var(--t2); line-height: 1.6; }
+
+/* ─── SCROLLBAR ─── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--bg3); border-radius: 3px; }
+
+.divider { display: flex; align-items: center; gap: 10px; margin: 12px 0; }
+.divider span { font-family: var(--mono); font-size: 9px; color: var(--t3); text-transform: uppercase; letter-spacing: 0.12em; white-space: nowrap; }
+.divider::before, .divider::after { content: ''; flex: 1; border-top: 1px solid var(--border); }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="tb-brand">
+      <div class="tb-avatar">S</div>
+      <div>
+        <div class="tb-name">Sahil's Command Center</div>
+        <div class="tb-sub">B.Tech + IITM BS · Sem 4 · AI/ML Backend</div>
+      </div>
+    </div>
+    <div class="tb-center">
+      <div class="tb-phase" id="tb-phase">SEM 4 — INTERNSHIP READINESS</div>
+    </div>
+    <div class="tb-right"><div style="font-family:var(--mono);font-size:9px;padding:4px 10px;border-radius:20px;background:var(--bg2);border:1px solid var(--border)" id="db-status">⟳ Connecting...</div>
+      <div class="tb-clock">
+        <span class="time" id="clock-time">00:00:00</span>
+        <span id="clock-date" style="font-size:9px">Loading...</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="body">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <!-- Semester progress -->
+      <div class="sb-sem-card">
+        <div class="sb-sem-title">Semester 4 of 8</div>
+        <div class="sb-sem-theme">Internship Readiness</div>
+        <div class="sem-steps">
+          <div class="sem-step done"></div>
+          <div class="sem-step done"></div>
+          <div class="sem-step done"></div>
+          <div class="sem-step active"></div>
+          <div class="sem-step"></div>
+          <div class="sem-step"></div>
+          <div class="sem-step"></div>
+          <div class="sem-step"></div>
+        </div>
+      </div>
+
+      <!-- Countdown -->
+      <div class="sb-countdown">
+        <div class="cd-label">Days to Sem 4 end</div>
+        <div class="cd-value" id="sem-countdown">—</div>
+        <div class="cd-sub">Target: June 2026</div>
+      </div>
+
+      <!-- Nav -->
+      <div class="sb-section">
+        <div class="sb-sec-label">Today</div>
+        <div class="nav-item active" onclick="goTo('today',this)">
+          <span class="icon">⚡</span> Today's Plan
+          <span class="dot" style="background:var(--blue)"></span>
+        </div>
+        <div class="nav-item" onclick="goTo('daily',this)">
+          <span class="icon">📝</span> Daily Log
+        </div>
+        <div class="nav-item" onclick="goTo('habits',this)">
+          <span class="icon">🔥</span> Habit Tracker
+        </div>
+      </div>
+      <div class="sb-section">
+        <div class="sb-sec-label">Build</div>
+        <div class="nav-item" onclick="goTo('tasks',this)">
+          <span class="icon">✅</span> Tasks
+        </div>
+        <div class="nav-item" onclick="goTo('dsa',this)">
+          <span class="icon">🧠</span> DSA Tracker
+        </div>
+        <div class="nav-item" onclick="goTo('projects',this)">
+          <span class="icon">🚀</span> Projects
+        </div>
+      </div>
+      <div class="sb-section">
+        <div class="sb-sec-label">Plan</div>
+        <div class="nav-item" onclick="goTo('schedule',this)">
+          <span class="icon">📅</span> Weekly Schedule
+        </div>
+        <div class="nav-item" onclick="goTo('goals',this)">
+          <span class="icon">🎯</span> Goals & Milestones
+        </div>
+        <div class="nav-item" onclick="goTo('roadmap',this)">
+          <span class="icon">🗺️</span> Semester Roadmap
+        </div>
+      </div>
+      <div class="sb-section">
+        <div class="sb-sec-label">Review</div>
+        <div class="nav-item" onclick="goTo('analytics',this)">
+          <span class="icon">📊</span> Analytics
+        </div>
+        <div class="nav-item" onclick="goTo('audit',this)">
+          <span class="icon">🔍</span> Weekly Audit
+        </div>
+        <div class="nav-item" onclick="goTo('principles',this)">
+          <span class="icon">📌</span> My Principles
+        </div>
+      </div>
+    </aside>
+
+    <!-- CONTENT -->
+    <main class="content">
+
+      <!-- ═══ TODAY'S PLAN ═══ -->
+      <div class="page active" id="page-today">
+        <div id="alert-punish" style="display:none" class="alert danger">⛔ Punishment pending — complete before marking next win.</div>
+        <div id="alert-fails" style="display:none" class="alert danger">🔴 3 fails in 7 days — you triggered punishment mode. Check Audit.</div>
+
+        <div class="today-hero">
+          <div class="hero-top">
+            <div>
+              <div class="hero-date" id="hero-date">Loading...</div>
+              <div class="hero-greeting" id="hero-greeting">Good morning,<br><span class="highlight">Sahil. Let's get to work.</span></div>
+            </div>
+            <div class="hero-score-block">
+              <div class="hero-score-num" id="hero-score" style="color:var(--t3)">—</div>
+              <div class="hero-score-label">TODAY'S SCORE</div>
+              <div id="hero-score-badge" style="margin-top:6px"></div>
+            </div>
+          </div>
+          <div class="hero-focus-row">
+            <span style="font-size:16px" id="hero-day-emoji">📅</span>
+            <div>
+              <div class="hero-focus-label" id="hero-day-type">Today's Focus Type</div>
+              <div class="hero-focus-value" id="hero-day-desc">Loading schedule...</div>
+            </div>
+            <div class="hero-focus-tag" id="hero-day-tag"></div>
+          </div>
+          <!-- Today's time blocks from planner -->
+          <div class="card-title" style="margin-bottom:8px">Today's Schedule <span id="today-total-hours"></span></div>
+          <div class="schedule-grid" id="today-schedule-blocks"></div>
+        </div>
+
+        <div class="g2 mb14">
+          <div class="card">
+            <div class="card-title">Today's Tasks</div>
+            <div id="today-tasks-list"><div style="font-size:11px;color:var(--t3)">No tasks today. Add in Tasks →</div></div>
+          </div>
+          <div class="card">
+            <div class="card-title">Focus Timer — Pomodoro</div>
+            <div class="pomo-wrap">
+              <svg viewBox="0 0 110 110">
+                <circle class="pr-track" cx="55" cy="55" r="45"/>
+                <circle class="pr-fill" id="pomo-arc" cx="55" cy="55" r="45" stroke="var(--blue)" stroke-dasharray="282.7" stroke-dashoffset="0"/>
+              </svg>
+              <div class="pomo-center">
+                <div class="pomo-time" id="pomo-display">25:00</div>
+                <div class="pomo-lbl" id="pomo-phase-lbl">WORK</div>
+              </div>
+            </div>
+            <div class="pomo-dots-row" id="pomo-dots"></div>
+            <div class="brow" style="justify-content:center;margin-top:10px">
+              <button class="btn primary sm" id="pomo-toggle" onclick="pomoToggle()">▶ START</button>
+              <button class="btn sm" onclick="pomoReset()">↺ Reset</button>
+              <button class="btn sm" onclick="pomoSkip()">⏭ Skip</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="g4 mb14">
+          <div class="stat-mini">
+            <div class="stat-num" id="stat-streak" style="color:var(--green)">0</div>
+            <div class="stat-label">Day Streak 🔥</div>
+          </div>
+          <div class="stat-mini">
+            <div class="stat-num" id="stat-dsa" style="color:var(--amber)">0</div>
+            <div class="stat-label">DSA Problems</div>
+            <div class="stat-sub" id="stat-dsa-sub">target: 120-150</div>
+          </div>
+          <div class="stat-mini">
+            <div class="stat-num" id="stat-proj" style="color:var(--blue)">0</div>
+            <div class="stat-label">Projects Deployed</div>
+          </div>
+          <div class="stat-mini">
+            <div class="stat-num" id="stat-habits" style="color:var(--purple)">0%</div>
+            <div class="stat-label">Habit Score Today</div>
+          </div>
+        </div>
+
+        <!-- Sem 4 progress to internship -->
+        <div class="card">
+          <div class="card-title">Sem 4 Internship Readiness Checklist</div>
+          <div class="g2">
+            <div>
+              <div class="pb-row"><div class="pb-header"><span>Python (daily 45min habit)</span><b id="py-prog">0%</b></div><div class="pb-track"><div class="pb-fill pb-amber" id="py-bar" style="width:0%"></div></div></div>
+              <div class="pb-row"><div class="pb-header"><span>DSA (target: 120–150 problems)</span><b id="dsa-prog">0/150</b></div><div class="pb-track"><div class="pb-fill pb-green" id="dsa-bar" style="width:0%"></div></div></div>
+              <div class="pb-row"><div class="pb-header"><span>Backend Project (deployed)</span><b id="be-prog">0%</b></div><div class="pb-track"><div class="pb-fill pb-blue" id="be-bar" style="width:0%"></div></div></div>
+            </div>
+            <div>
+              <div class="pb-row"><div class="pb-header"><span>ML Project (applied)</span><b id="ml-prog">0%</b></div><div class="pb-track"><div class="pb-fill pb-purple" id="ml-bar" style="width:0%"></div></div></div>
+              <div class="pb-row"><div class="pb-header"><span>Resume v1 Ready</span><b id="res-prog">0%</b></div><div class="pb-track"><div class="pb-fill pb-cyan" id="res-bar" style="width:0%"></div></div></div>
+              <div class="pb-row"><div class="pb-header"><span>Internship Applications Started</span><b id="app-prog">0%</b></div><div class="pb-track"><div class="pb-fill pb-amber" id="app-bar" style="width:0%"></div></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ DAILY LOG ═══ -->
+      <div class="page" id="page-daily">
+        <div class="page-title">Daily Log</div>
+        <div class="page-sub">Log your output — hours, DSA, tasks completed. Score is calculated automatically.</div>
+
+        <div class="mentor-tip">
+          <div class="mt-label">📌 Mentor's Reminder</div>
+          <div class="mt-text">Output > Learning. Every day must produce something real — a working script, a solved problem, a deployed endpoint. If you can't point to output, the day was wasted. Log honestly.</div>
+        </div>
+
+        <div class="g2 mb14">
+          <div class="card">
+            <div class="card-title">Set Targets</div>
+            <div class="fr"><label class="fl">Study Hours Target (max 7)</label><input type="number" id="t-hours" min="1" max="7" value="7"></div>
+            <div class="fr"><label class="fl">DSA Problems Target</label><input type="number" id="t-dsa" min="0" max="10" value="2"></div>
+            <div class="fr"><label class="fl">Primary Focus Today</label>
+              <select id="t-focus">
+                <option>Python (45min daily)</option><option>DSA</option><option>Backend / FastAPI</option>
+                <option>ML / Data Science</option><option>IITM BS Academics</option><option>B.Tech Academics</option><option>Project Work</option>
+              </select>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title">Log Actual Output</div>
+            <div class="fr"><label class="fl">Actual Hours Studied</label><input type="number" id="l-hours" min="0" max="16" step="0.5" value="0"></div>
+            <div class="fr"><label class="fl">DSA Problems Solved</label><input type="number" id="l-dsa" min="0" max="20" value="0"></div>
+            <div class="fr"><label class="fl">What did you ship today? (be specific)</label><input type="text" id="l-output" placeholder="e.g. Built auth endpoint, solved 2 DP problems"></div>
+            <div class="fr"><label class="fl">What blocked you? (if anything)</label><input type="text" id="l-block" placeholder="Honest reason — not 'was tired'"></div>
+          </div>
+        </div>
+        <div class="brow mb14">
+          <button class="btn primary" onclick="computeScore()">▶ Compute Score</button>
+          <button class="btn success" onclick="saveDayLog()">✓ Save Day</button>
+        </div>
+        <div class="card" id="score-card" style="display:none">
+          <div class="card-title">Today's Result</div>
+          <div style="display:flex;gap:24px;align-items:center;flex-wrap:wrap">
+            <div style="text-align:center;min-width:110px">
+              <div style="font-size:64px;font-weight:800;line-height:1" id="score-display">0</div>
+              <div id="score-badge-el" style="margin-top:6px"></div>
+            </div>
+            <div style="flex:1;min-width:180px">
+              <div class="pb-row"><div class="pb-header"><span>Study Hours</span><b id="pb-h-l">0/0</b></div><div class="pb-track"><div class="pb-fill pb-blue" id="pb-h" style="width:0%"></div></div></div>
+              <div class="pb-row"><div class="pb-header"><span>DSA Problems</span><b id="pb-d-l">0/0</b></div><div class="pb-track"><div class="pb-fill pb-amber" id="pb-d" style="width:0%"></div></div></div>
+              <div class="pb-row"><div class="pb-header"><span>Tasks Done</span><b id="pb-t-l">0/0</b></div><div class="pb-track"><div class="pb-fill pb-green" id="pb-t" style="width:0%"></div></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ HABITS ═══ -->
+      <div class="page" id="page-habits">
+        <div class="page-title">Habit Tracker</div>
+        <div class="page-sub">Daily non-negotiables from your planner. Track every day — no excuses.</div>
+
+        <div class="mentor-tip">
+          <div class="mt-label">📌 From Your Planner</div>
+          <div class="mt-text">Python is daily — no exceptions. IITM assignments on time. These are non-negotiables. Missing them even once breaks the compound effect your plan is built on.</div>
+        </div>
+
+        <div class="g2 mb14">
+          <div class="card">
+            <div class="card-title">Add Habit</div>
+            <div class="fr"><label class="fl">Habit Name</label><input type="text" id="h-name" placeholder="e.g. Python 45min, IITM assignment, DSA 2 problems"></div>
+            <div class="fr"><label class="fl">Category</label>
+              <select id="h-cat">
+                <option>Python Daily</option><option>DSA</option><option>IITM BS</option><option>B.Tech</option>
+                <option>Backend</option><option>ML</option><option>Health / Discipline</option>
+              </select>
+            </div>
+            <div class="brow"><button class="btn primary" onclick="addHabit()">+ Add Habit</button></div>
+          </div>
+          <div class="card green-glow">
+            <div class="card-title">Today's Completion</div>
+            <div style="text-align:center;padding:8px 0">
+              <div style="font-size:52px;font-weight:800;color:var(--green);line-height:1" id="habit-pct-big">0%</div>
+              <div style="font-family:var(--mono);font-size:9px;color:var(--t3);margin-top:4px" id="habit-pct-sub">0/0 done</div>
+            </div>
+            <div class="pb-track" style="height:6px;margin-top:8px"><div class="pb-fill pb-green" id="habit-today-bar" style="width:0%"></div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">14-Day Habit Grid</div>
+          <div class="habit-scroll" id="habit-grid"></div>
+        </div>
+      </div>
+
+      <!-- ═══ TASKS ═══ -->
+      <div class="page" id="page-tasks">
+        <div class="page-title">Tasks</div>
+        <div class="page-sub">Break your daily plan into actionable tasks. P0 = must do today.</div>
+        <div class="g2 mb14">
+          <div class="card">
+            <div class="card-title">Add Task</div>
+            <div class="fg2">
+              <div class="fr"><label class="fl">Task</label><input type="text" id="tk-t" placeholder="e.g. Solve 2 array problems on LeetCode"></div>
+              <div class="fr"><label class="fl">Category</label>
+                <select id="tk-c"><option>Python</option><option>DSA</option><option>Backend</option><option>ML</option><option>IITM BS</option><option>B.Tech</option><option>Projects</option><option>Career</option></select>
+              </div>
+              <div class="fr"><label class="fl">Priority</label>
+                <select id="tk-p"><option value="P0">P0 — Must Do Today</option><option value="P1">P1 — High</option><option value="P2" selected>P2 — Medium</option><option value="P3">P3 — Low</option></select>
+              </div>
+              <div class="fr"><label class="fl">Deadline</label><input type="date" id="tk-d"></div>
+            </div>
+            <div class="brow"><button class="btn primary" onclick="addTask()">+ Add Task</button></div>
+          </div>
+          <div class="card" style="max-height:500px;overflow-y:auto">
+            <div class="card-title">All Tasks</div>
+            <div id="all-tasks"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ DSA TRACKER ═══ -->
+      <div class="page" id="page-dsa">
+        <div class="page-title">DSA Tracker</div>
+        <div class="page-sub">Target: 120–150 solid problems by end of Sem 4. Focus: Arrays, Strings, Hashing, Sliding Window, Two Pointers, Binary Search, Recursion.</div>
+
+        <div class="mentor-tip">
+          <div class="mt-label">📌 Mentor's Note</div>
+          <div class="mt-text">Max 2 DSA problems per day — don't grind blindly. Understanding > quantity. Internship-level problems are mostly Easy-Medium. Master the patterns, not the count.</div>
+        </div>
+
+        <div class="g2 mb14">
+          <div class="card green-glow">
+            <div class="card-title">Today's Counter</div>
+            <div class="dsa-big">
+              <div class="dsa-num" id="dsa-today">0</div>
+              <div style="font-family:var(--mono);font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:0.15em;margin-top:4px">Problems Today (max 2)</div>
+              <div class="dsa-qbtns">
+                <button class="dsa-qbtn" onclick="qDSA(1)">+1</button>
+                <button class="dsa-qbtn" onclick="qDSA(2)">+2</button>
+              </div>
+            </div>
+            <div class="g3 mb14" style="margin-top:12px;gap:8px">
+              <div class="stat-mini" style="padding:10px"><div class="stat-num" style="font-size:22px;color:var(--green)" id="dsa-total">0</div><div class="stat-label">Total</div></div>
+              <div class="stat-mini" style="padding:10px"><div class="stat-num" style="font-size:22px;color:var(--amber)" id="dsa-week">0</div><div class="stat-label">This Week</div></div>
+              <div class="stat-mini" style="padding:10px"><div class="stat-num" style="font-size:22px;color:var(--red)" id="dsa-hard">0</div><div class="stat-label">Hard</div></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title">Log Problem</div>
+            <div class="fr"><label class="fl">Problem Name</label><input type="text" id="dsa-name" placeholder="e.g. Two Sum, LRU Cache"></div>
+            <div class="fg2">
+              <div class="fr"><label class="fl">Difficulty</label>
+                <select id="dsa-diff"><option value="easy">Easy</option><option value="medium" selected>Medium</option><option value="hard">Hard</option></select>
+              </div>
+              <div class="fr"><label class="fl">Topic</label>
+                <select id="dsa-topic">
+                  <option>Arrays</option><option>Strings</option><option>Hashing</option>
+                  <option>Sliding Window</option><option>Two Pointers</option><option>Binary Search</option>
+                  <option>Recursion</option><option>Graphs</option><option>DP</option><option>Other</option>
+                </select>
+              </div>
+            </div>
+            <div class="fr"><label class="fl">Platform</label>
+              <select id="dsa-plat"><option>LeetCode</option><option>GFG</option><option>Codeforces</option><option>HackerRank</option><option>InterviewBit</option></select>
+            </div>
+            <div class="brow"><button class="btn primary" onclick="logDSA()">+ Log Problem</button></div>
+          </div>
+        </div>
+
+        <!-- DSA progress by topic -->
+        <div class="card mb14">
+          <div class="card-title">Progress by Topic (Sem 4 Focus)</div>
+          <div class="g2" id="dsa-topic-progress"></div>
+        </div>
+
+        <div class="card" style="max-height:300px;overflow-y:auto">
+          <div class="card-title">Problem Log</div>
+          <div id="dsa-log"></div>
+        </div>
+      </div>
+
+      <!-- ═══ PROJECTS ═══ -->
+      <div class="page" id="page-projects">
+        <div class="page-title">Projects</div>
+        <div class="page-sub">Sem 4 goal: 1 deployed backend system + 1 applied ML project. Deploy URL mandatory.</div>
+        <div class="mentor-tip">
+          <div class="mt-label">📌 Core Principle</div>
+          <div class="mt-text">Projects must be deployable, not academic. If it doesn't have a URL, it doesn't count. One deployed project > 10 tutorial clones.</div>
+        </div>
+        <div class="g2 mb14">
+          <div class="stat-mini"><div class="stat-num" id="proj-total" style="color:var(--blue)">0</div><div class="stat-label">Total Projects</div></div>
+          <div class="stat-mini"><div class="stat-num" id="proj-dep" style="color:var(--green)">0</div><div class="stat-label">Deployed ✓</div></div>
+        </div>
+        <div class="card mb14">
+          <div class="card-title">Add Project</div>
+          <div class="fg2">
+            <div class="fr"><label class="fl">Project Name</label><input type="text" id="pj-name" placeholder="e.g. ML Inference API, FastAPI Auth System"></div>
+            <div class="fr"><label class="fl">Type</label><select id="pj-type"><option>Backend (FastAPI/REST)</option><option>ML Project</option><option>Full Stack</option><option>Data Pipeline</option><option>Other</option></select></div>
+            <div class="fr" style="grid-column:1/-1"><label class="fl">Description</label><textarea id="pj-desc" placeholder="What it does — explain it like you would in an interview"></textarea></div>
+            <div class="fr" style="grid-column:1/-1"><label class="fl">Deploy URL (required for deployed)</label><input type="url" id="pj-url" placeholder="https://your-project.vercel.app"></div>
+            <div class="fr"><label class="fl">Tech Stack</label><input type="text" id="pj-stack" placeholder="FastAPI, PostgreSQL, Python, Docker"></div>
+            <div class="fr"><label class="fl">Status</label><select id="pj-status"><option value="building">Building</option><option value="deployed">Deployed ✓</option></select></div>
+          </div>
+          <div class="brow"><button class="btn primary" onclick="addProject()">+ Add Project</button></div>
+        </div>
+        <div id="proj-list"></div>
+      </div>
+
+      <!-- ═══ WEEKLY SCHEDULE ═══ -->
+      <div class="page" id="page-schedule">
+        <div class="page-title">Weekly Schedule</div>
+        <div class="page-sub">Your fixed weekly structure from the planner. 7 hours/day max. Customize each day's blocks below.</div>
+
+        <div class="mentor-tip">
+          <div class="mt-label">📌 From Your Planner — Fixed Structure</div>
+          <div class="mt-text">Mon/Wed/Fri = Tech Core (Python+DSA, Backend, IITM, B.Tech). Tue/Thu = ML + Academics (IITM deep work, ML, Python impl, DSA light). Saturday = Build Day (project, deploy, GitHub). Sunday = Recovery + Review (2–3h max).</div>
+        </div>
+
+        <!-- Visual week view -->
+        <div class="card mb14">
+          <div class="card-title">This Week's Schedule</div>
+          <div class="week-scheduler" id="week-visual"></div>
+        </div>
+
+        <!-- Editable slots -->
+        <div class="card">
+          <div class="card-title">Customize Day Blocks <span>Click + to add custom tasks to any day</span></div>
+          <div id="week-editor"></div>
+        </div>
+      </div>
+
+      <!-- ═══ GOALS ═══ -->
+      <div class="page" id="page-goals">
+        <div class="page-title">Goals & Milestones</div>
+        <div class="page-sub">Sem 4 non-negotiable outcomes. Track progress toward each.</div>
+
+        <div class="mentor-tip">
+          <div class="mt-label">📌 Sem 4 Must-Have Outcomes (from your planner)</div>
+          <div class="mt-text">Strong Python · Solid DSA (120–150) · 1 deployed backend system · 1 applied ML project · Resume v1 ready · Actively applying for internships</div>
+        </div>
+
+        <div class="card mb14">
+          <div class="card-title">Sem 4 Milestones — Track Manually</div>
+          <div id="sem4-milestones"></div>
+        </div>
+
+        <div class="g2">
+          <div class="card">
+            <div class="card-title">Add Custom Goal</div>
+            <div class="fg2">
+              <div class="fr"><label class="fl">Goal</label><input type="text" id="g-title" placeholder="e.g. Finish NumPy + Pandas by March end"></div>
+              <div class="fr"><label class="fl">Type</label><select id="g-type"><option>Weekly</option><option>Monthly</option><option>Sem 4</option><option>Custom</option></select></div>
+              <div class="fr"><label class="fl">Target</label><input type="number" id="g-target" min="1" value="10"></div>
+              <div class="fr"><label class="fl">Unit</label><input type="text" id="g-unit" placeholder="problems / hours / commits"></div>
+              <div class="fr"><label class="fl">Deadline</label><input type="date" id="g-dl"></div>
+            </div>
+            <div class="brow"><button class="btn primary" onclick="addGoal()">+ Add Goal</button></div>
+          </div>
+          <div class="card" style="max-height:400px;overflow-y:auto">
+            <div class="card-title">Active Goals</div>
+            <div id="goals-list"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ ROADMAP ═══ -->
+      <div class="page" id="page-roadmap">
+        <div class="page-title">Semester Roadmap</div>
+        <div class="page-sub">Your full journey: Sem 4 → ₹1Cr+ package → Startup. Stay on identity.</div>
+        <div id="roadmap-items"></div>
+      </div>
+
+      <!-- ═══ ANALYTICS ═══ -->
+      <div class="page" id="page-analytics">
+        <div class="page-title">Analytics</div>
+        <div class="page-sub">What the numbers say about your execution.</div>
+        <div class="g4 mb14">
+          <div class="stat-mini"><div class="stat-num" id="an-streak" style="color:var(--green)">0</div><div class="stat-label">Day Streak</div></div>
+          <div class="stat-mini"><div class="stat-num" id="an-monthly" style="color:var(--amber)">0%</div><div class="stat-label">Monthly Hit Rate</div></div>
+          <div class="stat-mini"><div class="stat-num" id="an-dsa" style="color:var(--blue)">0</div><div class="stat-label">DSA Total</div></div>
+          <div class="stat-mini"><div class="stat-num" id="an-fails" style="color:var(--red)">0</div><div class="stat-label">Fails (7d)</div></div>
+        </div>
+        <div class="g2 mb14">
+          <div class="card">
+            <div class="card-title">7-Day Score Trend</div>
+            <div class="chart-bars" id="an-chart" style="height:80px"></div>
+            <div style="display:flex;gap:12px;margin-top:8px;font-family:var(--mono);font-size:8px">
+              <span style="color:var(--green)">■ SUCCESS ≥80</span>
+              <span style="color:var(--amber)">■ PARTIAL 50–79</span>
+              <span style="color:var(--red)">■ FAIL &lt;50</span>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title">DSA Progress vs Sem 4 Target</div>
+            <div style="text-align:center;margin:8px 0">
+              <div style="font-size:40px;font-weight:800;color:var(--green);line-height:1" id="an-dsa-big">0</div>
+              <div style="font-family:var(--mono);font-size:9px;color:var(--t3);margin-top:3px">of 150 problems</div>
+            </div>
+            <div class="pb-track" style="height:8px"><div class="pb-fill pb-green" id="an-dsa-bar" style="width:0%"></div></div>
+            <div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:8px;color:var(--t3);margin-top:5px"><span>0</span><span>40-50 (M1)</span><span>80-90 (M2)</span><span>150 (Sem 4 End)</span></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">30-Day Execution Calendar</div>
+          <div class="streak-dots" id="streak-grid"></div>
+          <div style="display:flex;gap:12px;font-family:var(--mono);font-size:8px;color:var(--t3);margin-top:8px">
+            <span style="color:var(--green)">■ HIT ≥80</span><span style="color:var(--red)">■ MISS</span><span>■ NO DATA</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ AUDIT ═══ -->
+      <div class="page" id="page-audit">
+        <div class="page-title">Weekly Audit</div>
+        <div class="page-sub">Sunday audit — straight from your planner. Two bad weeks = immediate plan adjustment.</div>
+
+        <div class="mentor-tip">
+          <div class="mt-label">📌 From Your Planner — Failure Prevention</div>
+          <div class="mt-text">If two weeks fail → immediate adjustment. Don't ignore bad patterns. The audit is not optional — it IS the plan's error correction system.</div>
+        </div>
+
+        <div class="g2 mb14">
+          <div class="card">
+            <div class="card-title">This Week's Audit (4 Questions)</div>
+            <div class="aq"><div class="aq-q">1. Did I code in Python daily? (45min minimum)</div><div class="aq-btns"><button class="ab" id="q1y" onclick="auQ(1,'y')">YES</button><button class="ab" id="q1n" onclick="auQ(1,'n')">NO</button></div></div>
+            <div class="aq"><div class="aq-q">2. Did I solve DSA honestly? (understanding, not speed)</div><div class="aq-btns"><button class="ab" id="q2y" onclick="auQ(2,'y')">YES</button><button class="ab" id="q2n" onclick="auQ(2,'n')">NO</button></div></div>
+            <div class="aq"><div class="aq-q">3. Are academics on track? (IITM + B.Tech)</div><div class="aq-btns"><button class="ab" id="q3y" onclick="auQ(3,'y')">YES</button><button class="ab" id="q3n" onclick="auQ(3,'n')">NO</button></div></div>
+            <div class="aq"><div class="aq-q">4. Did I ship something real? (code/deploy/notebook)</div><div class="aq-btns"><button class="ab" id="q4y" onclick="auQ(4,'y')">YES</button><button class="ab" id="q4n" onclick="auQ(4,'n')">NO</button></div></div>
+            <div class="fr" style="margin-top:10px"><label class="fl">What went wrong / what will you fix?</label><textarea id="au-reflect" placeholder="Be specific. What exactly failed and what will be different next week?"></textarea></div>
+            <div class="brow"><button class="btn primary" onclick="submitAudit()">Submit Audit</button></div>
+          </div>
+          <div class="card">
+            <div class="card-title">Accountability Log</div>
+            <div style="font-size:11px;color:var(--t3);margin-bottom:12px">Track audit results over time. Patterns tell you where you drift.</div>
+            <div id="audit-history"></div>
+            <div class="divider"><span>Failure Log</span></div>
+            <div id="fail-log-el"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ PRINCIPLES ═══ -->
+      <div class="page" id="page-principles">
+        <div class="page-title">My Principles</div>
+        <div class="page-sub">These are locked. If you break them, the plan collapses — from your planner.</div>
+
+        <div class="mentor-tip">
+          <div class="mt-label">📌 Mentor's Note</div>
+          <div class="mt-text">Read these every Sunday. They are the filter for every decision. When you're confused about what to do next — come back here first.</div>
+        </div>
+
+        <div class="g2 mb14">
+          <div class="card">
+            <div class="card-title">🔒 Master Assumptions (Locked)</div>
+            <div class="principle-item"><div class="pi-num">🎯</div><div class="pi-text">Domain: <strong>AI / ML-focused Backend Engineer</strong></div></div>
+            <div class="principle-item"><div class="pi-num">🎓</div><div class="pi-text">Degrees: B.Tech (regular) + IIT Madras BS Data Science</div></div>
+            <div class="principle-item"><div class="pi-num">⏰</div><div class="pi-text">Daily self-study limit: <strong>7 hours max</strong></div></div>
+            <div class="principle-item"><div class="pi-num">💰</div><div class="pi-text">Goal: 2 strong internships + ₹1 CPA+ placement + Real AI startup</div></div>
+          </div>
+          <div class="card">
+            <div class="card-title">🧠 Core Principles (Break → Plan Collapses)</div>
+            <div class="principle-item"><div class="pi-num">1</div><div class="pi-text">Python is daily, but not the main goal</div></div>
+            <div class="principle-item"><div class="pi-num">2</div><div class="pi-text"><strong>Output &gt; Learning</strong></div></div>
+            <div class="principle-item"><div class="pi-num">3</div><div class="pi-text">Internships matter more than certificates</div></div>
+            <div class="principle-item"><div class="pi-num">4</div><div class="pi-text">Projects must be deployable, not academic</div></div>
+            <div class="principle-item"><div class="pi-num">5</div><div class="pi-text">No startup work before offer security</div></div>
+            <div class="principle-item"><div class="pi-num">6</div><div class="pi-text">One identity per semester</div></div>
+            <div class="principle-item"><div class="pi-num">7</div><div class="pi-text">Burnout prevention is mandatory</div></div>
+          </div>
+        </div>
+
+        <div class="card mb14">
+          <div class="card-title">🚫 What is Deliberately Excluded (For Now)</div>
+          <div class="g3" style="gap:8px">
+            <div style="background:var(--red-l);border:1px solid rgba(239,68,68,0.15);border-radius:var(--radius-sm);padding:10px 12px;font-size:11px;color:var(--t2)">❌ Deep Learning rabbit holes</div>
+            <div style="background:var(--red-l);border:1px solid rgba(239,68,68,0.15);border-radius:var(--radius-sm);padding:10px 12px;font-size:11px;color:var(--t2)">❌ Transformers hype</div>
+            <div style="background:var(--red-l);border:1px solid rgba(239,68,68,0.15);border-radius:var(--radius-sm);padding:10px 12px;font-size:11px;color:var(--t2)">❌ Advanced frontend</div>
+            <div style="background:var(--red-l);border:1px solid rgba(239,68,68,0.15);border-radius:var(--radius-sm);padding:10px 12px;font-size:11px;color:var(--t2)">❌ Random hackathons</div>
+            <div style="background:var(--red-l);border:1px solid rgba(239,68,68,0.15);border-radius:var(--radius-sm);padding:10px 12px;font-size:11px;color:var(--t2)">❌ Random certifications</div>
+            <div style="background:var(--red-l);border:1px solid rgba(239,68,68,0.15);border-radius:var(--radius-sm);padding:10px 12px;font-size:11px;color:var(--t2)">❌ Early startup coding</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">🏁 Your Identity This Semester</div>
+          <div style="text-align:center;padding:20px">
+            <div style="font-size:32px;font-weight:800;margin-bottom:8px">Hireable Candidate</div>
+            <div style="font-size:14px;color:var(--t2);margin-bottom:16px">Not a founder. Not a student. A hireable engineer in the making.</div>
+            <div class="badge b-blue" style="font-size:11px;padding:6px 16px">Sem 4 → Internship-Ready by June 2026</div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+
+<!-- Supabase SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+// ════════════════════════════════════════════════════════
+//  ⚡ SAHIL'S COMMAND CENTER — Full Supabase Version
+//  Step 1: Replace the two lines below with your keys
+//  Step 2: Save as index.html and upload to GitHub
+// ════════════════════════════════════════════════════════
+
+const SUPABASE_URL = 'https://lxzgoxjtvoldumpthcqu.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx4emdveGp0dm9sZHVtcHRoY3F1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5Mjk5NjYsImV4cCI6MjA4OTUwNTk2Nn0.MLCfWpFFsKYOzekDbkTdt0dHj3P4ZzMtkPv0nzTtyfU';
+
+// ── DB client (only created when keys are real) ──────────
+const keysSet = SUPABASE_URL !== 'PASTE_YOUR_PROJECT_URL_HERE';
+const db = keysSet ? supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
+
+// ══════ STATE ══════
+let S = {
+  tasks: [], dsa: [], projects: [], habits: [], goals: [],
+  dailyLogs: [], audits: [], streak: 0,
+  auAns: {1:null,2:null,3:null,4:null},
+  pomo: { m:25, s:0, phase:'work', running:false, done:0, iv:null },
+  milestones: [
+    {id:1, text:'Strong Python for real work', cat:'Python', done:false},
+    {id:2, text:'Solid DSA foundation (120–150 problems)', cat:'DSA', done:false},
+    {id:3, text:'1 deployed backend system (FastAPI)', cat:'Backend', done:false},
+    {id:4, text:'1 applied ML project (deployed)', cat:'ML', done:false},
+    {id:5, text:'Resume v1 ready', cat:'Career', done:false},
+    {id:6, text:'Actively applying for internships', cat:'Career', done:false},
+  ],
+  weekSchedule: {
+    Mon:[{subj:'Python + DSA',dur:'2h',color:'var(--amber)'},{subj:'Backend / FastAPI',dur:'2h',color:'var(--blue)'},{subj:'IITM BS Work',dur:'2h',color:'var(--green)'},{subj:'B.Tech Tasks',dur:'1h',color:'var(--purple)'}],
+    Tue:[{subj:'IITM Deep Work',dur:'2h',color:'var(--green)'},{subj:'ML Practice',dur:'1.5h',color:'var(--purple)'},{subj:'Python Implementation',dur:'1.5h',color:'var(--amber)'},{subj:'DSA (light) + B.Tech',dur:'2h',color:'var(--blue)'}],
+    Wed:[{subj:'Python + DSA',dur:'2h',color:'var(--amber)'},{subj:'Backend / Projects',dur:'2h',color:'var(--blue)'},{subj:'IITM BS Work',dur:'2h',color:'var(--green)'},{subj:'B.Tech Tasks',dur:'1h',color:'var(--purple)'}],
+    Thu:[{subj:'IITM Deep Work',dur:'2h',color:'var(--green)'},{subj:'ML Practice',dur:'1.5h',color:'var(--purple)'},{subj:'Python Implementation',dur:'1.5h',color:'var(--amber)'},{subj:'DSA (light) + B.Tech',dur:'2h',color:'var(--blue)'}],
+    Fri:[{subj:'Python + DSA',dur:'2h',color:'var(--amber)'},{subj:'Backend / Projects',dur:'2h',color:'var(--blue)'},{subj:'IITM BS Work',dur:'2h',color:'var(--green)'},{subj:'B.Tech Tasks',dur:'1h',color:'var(--purple)'}],
+    Sat:[{subj:'Project Progress',dur:'2h',color:'var(--blue)'},{subj:'Deployment / GitHub',dur:'1.5h',color:'var(--green)'},{subj:'Resume / Portfolio',dur:'1h',color:'var(--purple)'},{subj:'Pending Tasks',dur:'0.5h',color:'var(--amber)'}],
+    Sun:[{subj:'Weekly Audit',dur:'1h',color:'var(--red)'},{subj:'Plan Next Week',dur:'0.5h',color:'var(--blue)'},{subj:'Light Revision',dur:'1h',color:'var(--amber)'},{subj:'Rest',dur:'0.5h',color:'var(--green)'}],
+  }
+};
+
+// ════════════════════════════════════════════════════════
+//  HELPERS
+// ════════════════════════════════════════════════════════
+const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const todayStr = () => fmtD(new Date());
+const fmtD = d => d.toISOString().slice(0,10);
+const getLast7 = () => { const a=[]; for(let i=6;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);a.push(fmtD(d));} return a; };
+const scoreBadge = s => s>=80?'<span class="badge b-green">SUCCESS</span>':s>=50?'<span class="badge b-amber">PARTIAL</span>':'<span class="badge b-red">FAIL</span>';
+
+function toast(msg, type='') {
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.textContent = msg;
+  if(type==='error') t.style.borderColor='rgba(239,68,68,0.4)';
+  document.body.appendChild(t);
+  setTimeout(()=>{ t.style.opacity='0'; t.style.transition='opacity 0.3s'; setTimeout(()=>t.remove(),300); }, 2500);
+}
+
+function showDBStatus(msg, ok=true) {
+  const el = document.getElementById('db-status');
+  if(!el) return;
+  el.textContent = msg;
+  el.style.color = ok ? 'var(--green)' : 'var(--red)';
+}
+
+// ════════════════════════════════════════════════════════
+//  LOCAL STORAGE — for settings only (pomo, milestones, schedule)
+// ════════════════════════════════════════════════════════
+function saveSettings() {
+  try {
+    localStorage.setItem('sahil_settings', JSON.stringify({
+      pomo: S.pomo,
+      milestones: S.milestones,
+      weekSchedule: S.weekSchedule
+    }));
+  } catch(e) {}
+}
+
+function loadSettings() {
+  try {
+    const d = localStorage.getItem('sahil_settings');
+    if(d) {
+      const p = JSON.parse(d);
+      if(p.pomo) S.pomo = p.pomo;
+      if(p.milestones) S.milestones = p.milestones;
+      if(p.weekSchedule) S.weekSchedule = p.weekSchedule;
+    }
+  } catch(e) {}
+}
+
+// save = alias so existing calls still work
+const save = saveSettings;
+
+// ════════════════════════════════════════════════════════
+//  SUPABASE — LOAD ALL DATA
+// ════════════════════════════════════════════════════════
+async function loadFromSupabase() {
+  if(!db) {
+    // Keys not set — fall back to localStorage for everything
+    try {
+      const d = localStorage.getItem('sahil_cmd');
+      if(d) {
+        const p = JSON.parse(d);
+        S.tasks = p.tasks || [];
+        S.dsa = p.dsa || [];
+        S.projects = p.projects || [];
+        S.habits = p.habits || [];
+        S.goals = p.goals || [];
+        S.dailyLogs = p.dailyLogs || [];
+        S.audits = p.audits || [];
+      }
+    } catch(e) {}
+    showDBStatus('⚠ localStorage mode — add Supabase keys to sync across devices', false);
+    return;
+  }
+
+  showDBStatus('⟳ Loading data...', true);
+
+  try {
+    const [tasksR, dsaR, habitsR, hlogsR, projR, logsR, goalsR, auditsR] = await Promise.all([
+      db.from('tasks').select('*').order('created_at'),
+      db.from('dsa_problems').select('*').order('created_at'),
+      db.from('habits').select('*').order('created_at'),
+      db.from('habit_logs').select('*'),
+      db.from('projects').select('*').order('created_at'),
+      db.from('daily_logs').select('*').order('date', {ascending:false}),
+      db.from('goals').select('*').order('created_at'),
+      db.from('audit_logs').select('*').order('created_at', {ascending:false}),
+    ]);
+
+    if(tasksR.error) throw tasksR.error;
+
+    // Map tasks
+    S.tasks = (tasksR.data||[]).map(r => ({
+      id: r.id, db_id: r.id,
+      title: r.title, cat: r.category, pri: r.priority,
+      deadline: r.deadline||'', done: r.done
+    }));
+
+    // Map DSA
+    S.dsa = (dsaR.data||[]).map(r => ({
+      id: r.id, db_id: r.id,
+      name: r.name, diff: r.difficulty, topic: r.topic,
+      plat: r.platform, date: r.date
+    }));
+
+    // Map habits + their logs
+    const allHLogs = hlogsR.data || [];
+    S.habits = (habitsR.data||[]).map(h => {
+      const logs = {};
+      allHLogs.filter(l => l.habit_id === h.id).forEach(l => { logs[l.date] = true; });
+      return { id: h.id, db_id: h.id, name: h.name, cat: h.category, logs };
+    });
+
+    // Map projects
+    S.projects = (projR.data||[]).map(r => ({
+      id: r.id, db_id: r.id,
+      name: r.name, type: r.type, desc: r.description||'',
+      url: r.url||'', stack: r.stack||'', status: r.status, date: r.date
+    }));
+
+    // Map daily logs
+    S.dailyLogs = (logsR.data||[]).map(r => ({
+      date: r.date, score: r.score||0,
+      lH: r.hours_studied||0, lD: r.dsa_solved||0,
+      td: r.tasks_done||0, tt: r.tasks_total||0,
+      output: r.output_text||'', block: r.blocker||'',
+      tH: r.target_hours||7, tD: r.target_dsa||2
+    }));
+
+    // Map goals
+    S.goals = (goalsR.data||[]).map(r => ({
+      id: r.id, db_id: r.id,
+      title: r.title, type: r.goal_type,
+      target: r.target, unit: r.unit||'',
+      deadline: r.deadline||'', achieved: r.achieved||0
+    }));
+
+    // Map audits
+    S.audits = (auditsR.data||[]).map(r => ({
+      date: r.date,
+      answers: {1:r.q1,2:r.q2,3:r.q3,4:r.q4},
+      reflection: r.reflection||'',
+      noCount: [r.q1,r.q2,r.q3,r.q4].filter(v=>v==='n').length
+    }));
+
+    showDBStatus('✓ Connected to Supabase', true);
+  } catch(err) {
+    console.error('Supabase load error:', err);
+    showDBStatus('✗ DB error — check console', false);
+    toast('Failed to load from database. Check your Supabase keys.', 'error');
+  }
+}
+
+// ════════════════════════════════════════════════════════
+//  SUPABASE — WRITE FUNCTIONS
+// ════════════════════════════════════════════════════════
+
+// ── Tasks ────────────────────────────────────────────────
+async function dbAddTask(task) {
+  if(!db) return;
+  const { data, error } = await db.from('tasks').insert({
+    title: task.title, category: task.cat, priority: task.pri,
+    deadline: task.deadline||'', done: false
+  }).select().single();
+  if(data) task.db_id = data.id;
+  if(error) console.error('addTask error:', error);
+}
+
+async function dbToggleTask(task) {
+  if(!db || !task.db_id) return;
+  const { error } = await db.from('tasks').update({ done: task.done }).eq('id', task.db_id);
+  if(error) console.error('toggleTask error:', error);
+}
+
+async function dbDeleteTask(db_id) {
+  if(!db || !db_id) return;
+  const { error } = await db.from('tasks').delete().eq('id', db_id);
+  if(error) console.error('deleteTask error:', error);
+}
+
+// ── DSA ──────────────────────────────────────────────────
+async function dbAddDSA(problem) {
+  if(!db) return;
+  const { data, error } = await db.from('dsa_problems').insert({
+    name: problem.name, difficulty: problem.diff,
+    topic: problem.topic, platform: problem.plat, date: problem.date
+  }).select().single();
+  if(data) problem.db_id = data.id;
+  if(error) console.error('addDSA error:', error);
+}
+
+async function dbDeleteDSA(db_id) {
+  if(!db || !db_id) return;
+  await db.from('dsa_problems').delete().eq('id', db_id);
+}
+
+// ── Habits ───────────────────────────────────────────────
+async function dbAddHabit(habit) {
+  if(!db) return;
+  const { data, error } = await db.from('habits').insert({
+    name: habit.name, category: habit.cat
+  }).select().single();
+  if(data) habit.db_id = data.id;
+  if(error) console.error('addHabit error:', error);
+}
+
+async function dbDeleteHabit(db_id) {
+  if(!db || !db_id) return;
+  await db.from('habits').delete().eq('id', db_id);
+}
+
+async function dbToggleHabitLog(habit_db_id, date, isDone) {
+  if(!db || !habit_db_id) return;
+  if(isDone) {
+    await db.from('habit_logs')
+      .upsert({ habit_id: habit_db_id, date }, { onConflict: 'habit_id,date', ignoreDuplicates: true });
+  } else {
+    await db.from('habit_logs').delete().eq('habit_id', habit_db_id).eq('date', date);
+  }
+}
+
+// ── Projects ─────────────────────────────────────────────
+async function dbAddProject(project) {
+  if(!db) return;
+  const { data, error } = await db.from('projects').insert({
+    name: project.name, type: project.type,
+    description: project.desc, url: project.url||'',
+    stack: project.stack||'', status: project.status, date: project.date
+  }).select().single();
+  if(data) project.db_id = data.id;
+  if(error) console.error('addProject error:', error);
+}
+
+async function dbDeleteProject(db_id) {
+  if(!db || !db_id) return;
+  await db.from('projects').delete().eq('id', db_id);
+}
+
+// ── Daily Log ────────────────────────────────────────────
+async function dbSaveDayLog(entry) {
+  if(!db) return;
+  const { error } = await db.from('daily_logs').upsert({
+    date: entry.date,
+    score: entry.score,
+    hours_studied: entry.lH,
+    dsa_solved: entry.lD,
+    tasks_done: entry.td,
+    tasks_total: entry.tt,
+    output_text: entry.output||'',
+    blocker: entry.block||'',
+    target_hours: entry.tH,
+    target_dsa: entry.tD
+  }, { onConflict: 'date' });
+  if(error) console.error('saveDayLog error:', error);
+}
+
+// ── Goals ────────────────────────────────────────────────
+async function dbAddGoal(goal) {
+  if(!db) return;
+  const { data, error } = await db.from('goals').insert({
+    title: goal.title, goal_type: goal.type,
+    target: goal.target, unit: goal.unit||'',
+    deadline: goal.deadline||'', achieved: 0
+  }).select().single();
+  if(data) goal.db_id = data.id;
+  if(error) console.error('addGoal error:', error);
+}
+
+async function dbUpdateGoal(goal) {
+  if(!db || !goal.db_id) return;
+  await db.from('goals').update({ achieved: goal.achieved }).eq('id', goal.db_id);
+}
+
+async function dbDeleteGoal(db_id) {
+  if(!db || !db_id) return;
+  await db.from('goals').delete().eq('id', db_id);
+}
+
+// ── Audit ────────────────────────────────────────────────
+async function dbSaveAudit(audit) {
+  if(!db) return;
+  await db.from('audit_logs').insert({
+    date: audit.date,
+    q1: audit.answers[1], q2: audit.answers[2],
+    q3: audit.answers[3], q4: audit.answers[4],
+    reflection: audit.reflection||''
+  });
+}
+
+// ════════════════════════════════════════════════════════
+//  CLOCK
+// ════════════════════════════════════════════════════════
+function tick() {
+  const n = new Date();
+  document.getElementById('clock-time').textContent = n.toLocaleTimeString('en-IN',{hour12:false});
+  document.getElementById('clock-date').textContent = n.toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'});
+  document.getElementById('hero-date').textContent = n.toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'}).toUpperCase();
+
+  const sem4End = new Date('2026-06-30');
+  const diff = Math.ceil((sem4End - n) / 86400000);
+  document.getElementById('sem-countdown').textContent = diff > 0 ? diff : 0;
+
+  const hr = n.getHours();
+  const greet = hr < 12 ? 'Good morning,' : hr < 17 ? 'Good afternoon,' : 'Good evening,';
+  document.getElementById('hero-greeting').innerHTML = `${greet}<br><span class="highlight">Sahil. Let's execute.</span>`;
+
+  const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const dayName = days[n.getDay()];
+  const dayTypes = {Mon:'TECH CORE',Tue:'ML + ACADEMICS',Wed:'TECH CORE',Thu:'ML + ACADEMICS',Fri:'TECH CORE',Sat:'BUILD DAY',Sun:'RECOVERY + REVIEW'};
+  const dayColors = {Mon:'var(--blue)',Tue:'var(--purple)',Wed:'var(--blue)',Thu:'var(--purple)',Fri:'var(--blue)',Sat:'var(--green)',Sun:'var(--amber)'};
+  document.getElementById('hero-day-type').textContent = dayName + ' — ' + (dayTypes[dayName]||'');
+  document.getElementById('hero-focus-tag').innerHTML = `<span class="badge b-blue" style="color:${dayColors[dayName]||'var(--blue)'}">${dayTypes[dayName]||''}</span>`;
+
+  const dayDescs = {
+    Mon:'Python+DSA (2h) → Backend (2h) → IITM (2h) → B.Tech (1h)',
+    Tue:'IITM deep work (2h) → ML (1.5h) → Python impl (1.5h) → DSA light + B.Tech (2h)',
+    Wed:'Python+DSA (2h) → Projects (2h) → IITM (2h) → B.Tech (1h)',
+    Thu:'IITM deep work (2h) → ML (1.5h) → Python impl (1.5h) → DSA light + B.Tech (2h)',
+    Fri:'Python+DSA (2h) → Backend (2h) → IITM (2h) → B.Tech (1h)',
+    Sat:'Project progress → Deploy → GitHub cleanup → Resume/Portfolio (4–5h total)',
+    Sun:'Weekly audit → Plan next week → Light revision → Rest (2–3h)'
+  };
+  document.getElementById('hero-day-desc').textContent = dayDescs[dayName] || '';
+}
+
+// ════════════════════════════════════════════════════════
+//  NAV
+// ════════════════════════════════════════════════════════
+function goTo(page, el) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  if(el) el.classList.add('active');
+  if(page==='today') refreshToday();
+  if(page==='analytics') refreshAnalytics();
+  if(page==='roadmap') renderRoadmap();
+  if(page==='schedule') renderWeekSchedule();
+  if(page==='tasks') renderTasks();
+  if(page==='dsa') renderDSA();
+  if(page==='projects') renderProjects();
+  if(page==='habits') renderHabits();
+  if(page==='goals') renderGoals();
+  if(page==='audit') renderAudit();
+}
+
+// ════════════════════════════════════════════════════════
+//  TODAY SCHEDULE BLOCKS
+// ════════════════════════════════════════════════════════
+function renderTodayBlocks() {
+  const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const dayName = days[new Date().getDay()];
+  const blocks = S.weekSchedule[dayName] || [];
+  const colors = {'var(--amber)':'amber','var(--blue)':'blue','var(--green)':'green','var(--purple)':'purple','var(--red)':'red','var(--cyan)':'cyan'};
+  const totalHrs = blocks.reduce((s,b)=>s+parseFloat(b.dur||0),0);
+  document.getElementById('today-total-hours').textContent = `${totalHrs}h total`;
+  const el = document.getElementById('today-schedule-blocks');
+  const today = todayStr();
+  el.innerHTML = blocks.map((b,i) => {
+    const key = `sched_${today}_${i}`;
+    const done = localStorage.getItem(key) === '1';
+    const colClass = colors[b.color] || 'blue';
+    return `<div class="sched-block${done?' completed':''}" onclick="toggleSchedBlock('${key}',this)">
+      <div class="block-subject">${esc(b.subj)}</div>
+      <span class="block-duration badge b-${colClass}">${b.dur}</span>
+    </div>`;
+  }).join('');
+}
+
+function toggleSchedBlock(key, el) {
+  const done = localStorage.getItem(key) === '1';
+  localStorage.setItem(key, done?'0':'1');
+  el.classList.toggle('completed');
+}
+
+// ════════════════════════════════════════════════════════
+//  POMODORO
+// ════════════════════════════════════════════════════════
+function renderPomo() {
+  const p = S.pomo;
+  document.getElementById('pomo-display').textContent = String(p.m).padStart(2,'0')+':'+String(p.s).padStart(2,'0');
+  document.getElementById('pomo-phase-lbl').textContent = p.phase === 'work' ? 'WORK' : 'BREAK';
+  const total = p.phase==='work' ? 25*60 : 5*60;
+  const elapsed = total - (p.m*60 + p.s);
+  const circ = 282.7;
+  document.getElementById('pomo-arc').style.strokeDashoffset = circ*(1-elapsed/total);
+  document.getElementById('pomo-arc').style.stroke = p.phase==='work' ? 'var(--blue)' : 'var(--green)';
+  const dots = document.getElementById('pomo-dots');
+  dots.innerHTML = '';
+  for(let i=0;i<4;i++) { const d=document.createElement('div'); d.className='pdot'+(i<p.done%4?' done':''); dots.appendChild(d); }
+}
+function pomoToggle() {
+  const p = S.pomo;
+  if(p.running) {
+    clearInterval(p.iv); p.iv=null; p.running=false;
+    document.getElementById('pomo-toggle').textContent='▶ START';
+  } else {
+    p.running=true; document.getElementById('pomo-toggle').textContent='⏸ PAUSE';
+    p.iv = setInterval(()=>{
+      if(p.s>0) p.s--;
+      else if(p.m>0) { p.m--; p.s=59; }
+      else {
+        clearInterval(p.iv); p.iv=null; p.running=false;
+        if(p.phase==='work'){p.done++;p.phase='break';p.m=5;p.s=0;toast('✓ Work done! Rest 5 min.');}
+        else{p.phase='work';p.m=25;p.s=0;toast('🔥 Break over. Lock in.');}
+        document.getElementById('pomo-toggle').textContent='▶ START';
+      }
+      renderPomo(); saveSettings();
+    }, 1000);
+  }
+}
+function pomoReset() { const p=S.pomo; clearInterval(p.iv); p.iv=null; p.running=false; p.m=p.phase==='work'?25:5; p.s=0; document.getElementById('pomo-toggle').textContent='▶ START'; renderPomo(); }
+function pomoSkip() { const p=S.pomo; clearInterval(p.iv); p.iv=null; p.running=false; p.phase=p.phase==='work'?'break':'work'; p.m=p.phase==='work'?25:5; p.s=0; document.getElementById('pomo-toggle').textContent='▶ START'; renderPomo(); }
+
+// ════════════════════════════════════════════════════════
+//  SCORE / DAILY LOG
+// ════════════════════════════════════════════════════════
+function computeScore() {
+  const tH=parseFloat(document.getElementById('t-hours').value)||7;
+  const tD=parseFloat(document.getElementById('t-dsa').value)||2;
+  const lH=parseFloat(document.getElementById('l-hours').value)||0;
+  const lD=parseFloat(document.getElementById('l-dsa').value)||0;
+  const today=todayStr();
+  const tt=S.tasks.filter(t=>!t.deadline||t.deadline===today);
+  const td=tt.filter(t=>t.done).length;
+  const hR=Math.min(lH/tH,1), dR=tD>0?Math.min(lD/tD,1):1, tR=tt.length>0?Math.min(td/tt.length,1):1;
+  const score=Math.round((hR*0.4+dR*0.4+tR*0.2)*100);
+  document.getElementById('score-card').style.display='block';
+  const sb=document.getElementById('score-display'); sb.textContent=score;
+  sb.style.color=score>=80?'var(--green)':score>=50?'var(--amber)':'var(--red)';
+  document.getElementById('score-badge-el').innerHTML=scoreBadge(score);
+  document.getElementById('pb-h').style.width=Math.round(Math.min(lH/tH,1)*100)+'%'; document.getElementById('pb-h-l').textContent=lH+'/'+tH+'h';
+  document.getElementById('pb-d').style.width=Math.round(Math.min(tD>0?lD/tD:1,1)*100)+'%'; document.getElementById('pb-d-l').textContent=lD+'/'+tD;
+  document.getElementById('pb-t').style.width=Math.round(tR*100)+'%'; document.getElementById('pb-t-l').textContent=td+'/'+tt.length;
+  return {score,lH,lD,td,tt:tt.length,tH,tD,output:document.getElementById('l-output').value.trim(),block:document.getElementById('l-block').value.trim()};
+}
+
+async function saveDayLog() {
+  const r = computeScore();
+  const today = todayStr();
+  const entry = {date:today, ...r};
+  const idx = S.dailyLogs.findIndex(l=>l.date===today);
+  if(idx>=0) S.dailyLogs[idx]=entry; else S.dailyLogs.push(entry);
+  await dbSaveDayLog(entry);
+  calcStreak(); checkFails();
+  toast('✓ Day logged — '+today);
+  refreshToday();
+}
+
+function calcStreak() {
+  let s=0;
+  for(let i=0;i<90;i++){
+    const d=new Date(); d.setDate(d.getDate()-i);
+    const l=S.dailyLogs.find(x=>x.date===fmtD(d));
+    if(l&&l.score>=80) s++; else break;
+  }
+  S.streak=s;
+}
+
+function checkFails() {
+  const l7=getLast7();
+  const fails=l7.filter(d=>{const l=S.dailyLogs.find(x=>x.date===d);return l&&l.score<50;}).length;
+  document.getElementById('alert-fails').style.display=fails>=3?'flex':'none';
+  document.getElementById('alert-punish').style.display='none';
+}
+
+// ════════════════════════════════════════════════════════
+//  TASKS
+// ════════════════════════════════════════════════════════
+async function addTask() {
+  const t = document.getElementById('tk-t').value.trim();
+  if(!t){toast('Enter task title');return;}
+  const task = {
+    id: Date.now(),
+    title: t,
+    cat: document.getElementById('tk-c').value,
+    pri: document.getElementById('tk-p').value,
+    deadline: document.getElementById('tk-d').value,
+    done: false
+  };
+  S.tasks.push(task);
+  document.getElementById('tk-t').value='';
+  renderTasks(); refreshToday();
+  await dbAddTask(task);
+}
+
+async function toggleTask(id) {
+  const t = S.tasks.find(x=>x.id===id);
+  if(!t) return;
+  t.done = !t.done;
+  renderTasks(); refreshToday();
+  await dbToggleTask(t);
+}
+
+async function delTask(id) {
+  const t = S.tasks.find(x=>x.id===id);
+  S.tasks = S.tasks.filter(x=>x.id!==id);
+  renderTasks(); refreshToday();
+  if(t) await dbDeleteTask(t.db_id);
+}
+
+function renderTasks() {
+  const el = document.getElementById('all-tasks');
+  if(!S.tasks.length){el.innerHTML='<div style="font-size:11px;color:var(--t3)">No tasks yet.</div>';return;}
+  const sorted=[...S.tasks].sort((a,b)=>{const p={P0:0,P1:1,P2:2,P3:3};if(a.done!==b.done)return a.done?1:-1;return(p[a.pri]||9)-(p[b.pri]||9);});
+  const catColors={Python:'amber',DSA:'green',Backend:'blue',ML:'purple','IITM BS':'cyan','B.Tech':'blue',Projects:'green',Career:'amber'};
+  el.innerHTML=sorted.map(t=>`<div class="task-item${t.done?' done':''}">
+    <div class="task-cb${t.done?' on':''}" onclick="toggleTask(${t.id})">${t.done?'✓':''}</div>
+    <span class="task-name${t.done?' done':''}">${esc(t.title)}</span>
+    <span class="badge b-${catColors[t.cat]||'blue'}" style="font-size:8px">${esc(t.cat)}</span>
+    <span class="primark" style="color:${t.pri==='P0'?'var(--red)':t.pri==='P1'?'var(--amber)':t.pri==='P2'?'var(--blue)':'var(--t3)'}">${t.pri}</span>
+    ${t.deadline?`<span style="font-family:var(--mono);font-size:8px;color:var(--t3)">${t.deadline}</span>`:''}
+    <button class="task-del" onclick="delTask(${t.id})">✕</button>
+  </div>`).join('');
+}
+
+// ════════════════════════════════════════════════════════
+//  DSA
+// ════════════════════════════════════════════════════════
+async function qDSA(n) {
+  const today = todayStr();
+  const problems = [];
+  for(let i=0;i<n;i++) {
+    const p = {id:Date.now()+i+Math.random(), name:'Quick +1', diff:'medium', topic:'Arrays', plat:'LeetCode', date:today};
+    S.dsa.push(p);
+    problems.push(p);
+  }
+  renderDSA();
+  toast('+'+n+' DSA logged');
+  for(const p of problems) await dbAddDSA(p);
+}
+
+async function logDSA() {
+  const name = document.getElementById('dsa-name').value.trim();
+  if(!name){toast('Enter problem name');return;}
+  const problem = {
+    id: Date.now(), name,
+    diff: document.getElementById('dsa-diff').value,
+    topic: document.getElementById('dsa-topic').value,
+    plat: document.getElementById('dsa-plat').value,
+    date: todayStr()
+  };
+  S.dsa.push(problem);
+  document.getElementById('dsa-name').value='';
+  renderDSA();
+  toast('✓ DSA logged');
+  await dbAddDSA(problem);
+}
+
+async function delDSA(id) {
+  const p = S.dsa.find(x=>x.id===id);
+  S.dsa = S.dsa.filter(x=>x.id!==id);
+  renderDSA();
+  if(p) await dbDeleteDSA(p.db_id);
+}
+
+function renderDSA() {
+  const today=todayStr(); const l7=getLast7();
+  document.getElementById('dsa-today').textContent=S.dsa.filter(d=>d.date===today).length;
+  document.getElementById('dsa-total').textContent=S.dsa.length;
+  document.getElementById('dsa-week').textContent=S.dsa.filter(d=>l7.includes(d.date)).length;
+  document.getElementById('dsa-hard').textContent=S.dsa.filter(d=>d.diff==='hard').length;
+  const topics=['Arrays','Strings','Hashing','Sliding Window','Two Pointers','Binary Search','Recursion','Graphs'];
+  const tp=document.getElementById('dsa-topic-progress');
+  if(tp) tp.innerHTML=topics.map(t=>{
+    const cnt=S.dsa.filter(d=>d.topic===t).length;
+    const pct=Math.min(Math.round(cnt/10*100),100);
+    return `<div class="pb-row"><div class="pb-header"><span>${t}</span><b>${cnt}/10</b></div><div class="pb-track"><div class="pb-fill pb-green" style="width:${pct}%"></div></div></div>`;
+  }).join('');
+  const el=document.getElementById('dsa-log');
+  if(!S.dsa.length){el.innerHTML='<div style="font-size:11px;color:var(--t3)">No problems logged yet.</div>';return;}
+  el.innerHTML=[...S.dsa].sort((a,b)=>b.id-a.id).map(d=>`<div class="task-item">
+    <div class="diff-dot" style="background:${d.diff==='easy'?'var(--green)':d.diff==='medium'?'var(--amber)':'var(--red)'}"></div>
+    <span style="flex:1;font-size:11px">${esc(d.name)}</span>
+    <span class="badge b-blue" style="font-size:8px">${esc(d.topic)}</span>
+    <span class="badge ${d.diff==='easy'?'b-green':d.diff==='medium'?'b-amber':'b-red'}" style="font-size:8px">${d.diff}</span>
+    <span style="font-family:var(--mono);font-size:8px;color:var(--t3)">${d.plat}</span>
+    <span style="font-family:var(--mono);font-size:8px;color:var(--t3)">${d.date}</span>
+    <button class="task-del" onclick="delDSA(${d.id})">✕</button>
+  </div>`).join('');
+}
+
+// ════════════════════════════════════════════════════════
+//  HABITS
+// ════════════════════════════════════════════════════════
+async function addHabit() {
+  const n = document.getElementById('h-name').value.trim();
+  if(!n){toast('Enter habit name');return;}
+  const habit = {id:Date.now(), name:n, cat:document.getElementById('h-cat').value, logs:{}};
+  S.habits.push(habit);
+  document.getElementById('h-name').value='';
+  renderHabits();
+  toast('✓ Habit added');
+  await dbAddHabit(habit);
+}
+
+async function toggleHabit(hid, date) {
+  const h = S.habits.find(x=>x.id===hid);
+  if(!h) return;
+  h.logs[date] = !h.logs[date];
+  renderHabits(); refreshToday();
+  await dbToggleHabitLog(h.db_id, date, h.logs[date]);
+}
+
+async function delHabit(id) {
+  const h = S.habits.find(x=>x.id===id);
+  S.habits = S.habits.filter(x=>x.id!==id);
+  renderHabits();
+  if(h) await dbDeleteHabit(h.db_id);
+}
+
+function renderHabits() {
+  const today=todayStr();
+  if(!S.habits.length){
+    document.getElementById('habit-grid').innerHTML='<div style="font-size:11px;color:var(--t3)">No habits yet. Add your daily non-negotiables.</div>';
+    document.getElementById('habit-pct-big').textContent='0%';
+    document.getElementById('habit-pct-sub').textContent='0/0';
+    document.getElementById('habit-today-bar').style.width='0%';
+    return;
+  }
+  const done=S.habits.filter(h=>h.logs[today]).length;
+  const pct=Math.round(done/S.habits.length*100);
+  document.getElementById('habit-pct-big').textContent=pct+'%';
+  document.getElementById('habit-pct-sub').textContent=done+'/'+S.habits.length+' done';
+  document.getElementById('habit-today-bar').style.width=pct+'%';
+  const days=[]; for(let i=13;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);days.push(fmtD(d));}
+  let html='<table class="htable"><thead><tr><th style="text-align:left;padding-right:10px"><span style="font-family:var(--mono);font-size:8px;color:var(--t3)">HABIT</span></th>';
+  days.forEach(d=>{const day=new Date(d+'T00:00:00');html+=`<th class="hth">${day.toLocaleDateString('en',{weekday:'short'}).charAt(0)}<br><span style="font-size:7px">${day.getDate()}</span></th>`;});
+  html+='<th></th></tr></thead><tbody>';
+  S.habits.forEach(h=>{
+    html+=`<tr><td class="hn">${esc(h.name)}</td>`;
+    days.forEach(d=>{
+      const fut=d>today, isDone=h.logs[d];
+      const cls=fut?'hf':isDone?'hon':(d<today?'hmiss':'');
+      html+=`<td class="htd"><div class="hdot${cls?' '+cls:''}" onclick="${fut?'':'toggleHabit('+h.id+',\''+d+'\')'}">${isDone?'✓':''}</div></td>`;
+    });
+    html+=`<td style="padding-left:6px"><button class="task-del" onclick="delHabit(${h.id})">✕</button></td></tr>`;
+  });
+  html+='</tbody></table>';
+  document.getElementById('habit-grid').innerHTML=html;
+}
+
+// ════════════════════════════════════════════════════════
+//  PROJECTS
+// ════════════════════════════════════════════════════════
+async function addProject() {
+  const n=document.getElementById('pj-name').value.trim();
+  if(!n){toast('Enter project name');return;}
+  const st=document.getElementById('pj-status').value;
+  const url=document.getElementById('pj-url').value.trim();
+  if(st==='deployed'&&!url){toast('Deploy URL required');return;}
+  const project = {
+    id:Date.now(), name:n,
+    type:document.getElementById('pj-type').value,
+    desc:document.getElementById('pj-desc').value.trim(),
+    url, stack:document.getElementById('pj-stack').value.trim(),
+    status:st, date:todayStr()
+  };
+  S.projects.push(project);
+  document.getElementById('pj-name').value='';
+  document.getElementById('pj-desc').value='';
+  document.getElementById('pj-url').value='';
+  renderProjects();
+  toast('✓ Project added');
+  await dbAddProject(project);
+}
+
+async function delProject(id) {
+  const p=S.projects.find(x=>x.id===id);
+  S.projects=S.projects.filter(x=>x.id!==id);
+  renderProjects();
+  if(p) await dbDeleteProject(p.db_id);
+}
+
+function renderProjects() {
+  const dep=S.projects.filter(x=>x.status==='deployed').length;
+  document.getElementById('proj-total').textContent=S.projects.length;
+  document.getElementById('proj-dep').textContent=dep;
+  const el=document.getElementById('proj-list');
+  if(!S.projects.length){el.innerHTML='<div style="font-size:11px;color:var(--t3)">No projects yet. Sem 4 goal: 1 backend + 1 ML project deployed.</div>';return;}
+  el.innerHTML=S.projects.map(p=>`<div class="proj-card ${p.status}">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">
+      <div style="font-weight:700;font-size:14px">${esc(p.name)}</div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span class="badge ${p.status==='deployed'?'b-green':'b-amber'}">${p.status==='deployed'?'✓ DEPLOYED':'BUILDING'}</span>
+        <span class="badge b-blue" style="font-size:8px">${esc(p.type)}</span>
+        <button class="task-del" onclick="delProject(${p.id})">✕</button>
+      </div>
+    </div>
+    <div style="font-size:11px;color:var(--t2);margin-bottom:6px;line-height:1.5">${esc(p.desc)}</div>
+    ${p.url?`<div style="font-family:var(--mono);font-size:9px;color:var(--blue)">🔗 <a href="${esc(p.url)}" target="_blank" style="color:var(--blue)">${esc(p.url)}</a></div>`:''}
+    ${p.stack?`<div style="margin-top:6px"><span class="badge b-blue" style="font-size:8px">${esc(p.stack)}</span></div>`:''}
+  </div>`).join('');
+}
+
+// ════════════════════════════════════════════════════════
+//  GOALS
+// ════════════════════════════════════════════════════════
+function renderSem4Milestones() {
+  const el=document.getElementById('sem4-milestones');
+  el.innerHTML=S.milestones.map(m=>`<div class="month-goal-item" style="border-left:3px solid ${m.done?'var(--green)':'var(--border2)'}">
+    <div class="mg-head">
+      <div class="mg-name">${m.done?'<s>':''}<span class="badge b-blue" style="font-size:8px;margin-right:6px">${esc(m.cat)}</span>${esc(m.text)}${m.done?'</s>':''}</div>
+      <div class="mg-ops">
+        <button class="mg-op" onclick="toggleMilestone(${m.id})" style="${m.done?'color:var(--green)':''}">${m.done?'✓ Done':'Mark Done'}</button>
+      </div>
+    </div>
+  </div>`).join('');
+}
+
+function toggleMilestone(id) {
+  const m=S.milestones.find(x=>x.id===id);
+  if(m){m.done=!m.done; saveSettings(); renderGoals();}
+}
+
+async function addGoal() {
+  const t=document.getElementById('g-title').value.trim();
+  if(!t){toast('Enter goal');return;}
+  const goal = {
+    id:Date.now(), title:t,
+    type:document.getElementById('g-type').value,
+    target:parseFloat(document.getElementById('g-target').value)||10,
+    unit:document.getElementById('g-unit').value.trim(),
+    deadline:document.getElementById('g-dl').value,
+    achieved:0
+  };
+  S.goals.push(goal);
+  document.getElementById('g-title').value='';
+  renderGoals();
+  await dbAddGoal(goal);
+}
+
+async function updateGoal(id,d) {
+  const g=S.goals.find(x=>x.id===id);
+  if(!g) return;
+  g.achieved=Math.max(0,g.achieved+d);
+  renderGoals();
+  await dbUpdateGoal(g);
+}
+
+async function delGoal(id) {
+  const g=S.goals.find(x=>x.id===id);
+  S.goals=S.goals.filter(x=>x.id!==id);
+  renderGoals();
+  if(g) await dbDeleteGoal(g.db_id);
+}
+
+function renderGoals() {
+  renderSem4Milestones();
+  const el=document.getElementById('goals-list');
+  if(!S.goals.length){el.innerHTML='<div style="font-size:11px;color:var(--t3)">No custom goals yet.</div>';return;}
+  el.innerHTML=S.goals.map(g=>{
+    const pct=Math.min(Math.round(g.achieved/g.target*100),100); const done=g.achieved>=g.target;
+    return `<div class="month-goal-item" style="border-left:2px solid ${done?'var(--green)':'var(--border)'}">
+      <div class="mg-head"><div class="mg-name">${esc(g.title)}</div><div style="display:flex;gap:6px;align-items:center"><span class="badge b-blue" style="font-size:8px">${g.type}</span><button class="task-del" onclick="delGoal(${g.id})">✕</button></div></div>
+      <div style="font-family:var(--mono);font-size:9px;color:var(--t3);margin-bottom:5px">${g.achieved}/${g.target} ${esc(g.unit)} ${g.deadline?'· Due '+g.deadline:''}</div>
+      <div class="pb-track" style="height:4px;margin-bottom:6px"><div class="pb-fill pb-green" style="width:${pct}%"></div></div>
+      <div class="mg-ops"><button class="mg-op" onclick="updateGoal(${g.id},-1)">−1</button><button class="mg-op" onclick="updateGoal(${g.id},1)">+1</button><button class="mg-op" onclick="updateGoal(${g.id},5)">+5</button></div>
+    </div>`;
+  }).join('');
+}
+
+// ════════════════════════════════════════════════════════
+//  WEEK SCHEDULE
+// ════════════════════════════════════════════════════════
+function renderWeekSchedule() {
+  const days=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const today=new Date().toLocaleDateString('en',{weekday:'short'}).replace('.','');
+  const typeLabels={Mon:'Tech Core',Tue:'ML+Acad',Wed:'Tech Core',Thu:'ML+Acad',Fri:'Tech Core',Sat:'Build Day',Sun:'Recovery'};
+  const typeColors={Mon:'var(--blue)',Tue:'var(--purple)',Wed:'var(--blue)',Thu:'var(--purple)',Fri:'var(--blue)',Sat:'var(--green)',Sun:'var(--amber)'};
+  document.getElementById('week-visual').innerHTML=days.map(d=>{
+    const blocks=S.weekSchedule[d]||[];
+    const isToday=d===today;
+    return `<div class="day-col" style="${isToday?'border-color:rgba(59,130,246,0.4);background:rgba(59,130,246,0.04)':''}">
+      <div class="day-header">
+        <span class="day-name" style="${isToday?'color:var(--blue)':''}">${d}</span>
+        <span class="badge" style="background:${typeColors[d]}18;color:${typeColors[d]};border:1px solid ${typeColors[d]}30;font-size:7px">${typeLabels[d]}</span>
+      </div>
+      <div class="day-blocks">
+        ${blocks.map(b=>`<div class="day-block" style="border-color:${b.color};background:${b.color}10">
+          <div class="db-subj">${esc(b.subj)}</div>
+          <div class="db-dur">${b.dur}</div>
+        </div>`).join('')}
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('week-editor').innerHTML=days.map(d=>{
+    const blocks=S.weekSchedule[d]||[];
+    const typeColor=typeColors[d]||'var(--blue)';
+    return `<div class="wse-block">
+      <div class="wse-day-header">
+        <div class="wse-day-name" style="color:${typeColor}">${d} — ${typeLabels[d]||''}</div>
+        <button class="btn sm" onclick="addWeekSlot('${d}')">+ Add Block</button>
+      </div>
+      ${blocks.map((b,i)=>`<div class="wse-slot">
+        <span class="wse-slot-time">Block ${i+1}</span>
+        <input type="text" value="${esc(b.subj)}" placeholder="Subject/Task" onchange="updateSlot('${d}',${i},'subj',this.value)" style="flex:1">
+        <input type="text" class="wse-slot-dur" value="${esc(b.dur)}" placeholder="2h" onchange="updateSlot('${d}',${i},'dur',this.value)">
+        <button class="task-del" onclick="delSlot('${d}',${i})">✕</button>
+      </div>`).join('')}
+    </div>`;
+  }).join('');
+}
+
+function addWeekSlot(day) {
+  if(!S.weekSchedule[day]) S.weekSchedule[day]=[];
+  S.weekSchedule[day].push({subj:'New Block',dur:'1h',color:'var(--blue)'});
+  saveSettings(); renderWeekSchedule();
+}
+function updateSlot(day,idx,key,val) {
+  if(S.weekSchedule[day]&&S.weekSchedule[day][idx]){S.weekSchedule[day][idx][key]=val;saveSettings();}
+}
+function delSlot(day,idx) {
+  if(S.weekSchedule[day]){S.weekSchedule[day].splice(idx,1);saveSettings();renderWeekSchedule();}
+}
+
+// ════════════════════════════════════════════════════════
+//  ROADMAP
+// ════════════════════════════════════════════════════════
+function renderRoadmap() {
+  const sems=[
+    {sem:'Sem 4',phase:'Internship Readiness',identity:'Hireable Candidate',theme:'🟦',outcomes:['Strong Python for real work','Solid DSA foundation (120–150 problems)','1 deployed backend system','1 applied ML project','Resume v1 ready','Actively applying for internships'],current:true},
+    {sem:'Sem 5',phase:'High-Stipend Internship + Skill Acceleration',identity:'Working Engineer',theme:'🟨',outcomes:['1 high-quality internship','Real production experience','Applied ML depth','Resume v2 (impact-driven)'],current:false},
+    {sem:'Sem 6',phase:'Placement Dominance + Internship #2',identity:'Interview-Ready Engineer',theme:'🟧',outcomes:['Second internship or PPO','Strong DSA + system basics','Placement readiness','Clear technical narrative'],current:false},
+    {sem:'Sem 7',phase:'Offer Conversion',identity:'Candidate with Leverage',theme:'🟪',outcomes:['Dream package secured','Strong negotiation position','No major skill gaps'],current:false},
+    {sem:'Sem 8',phase:'Startup Execution',identity:'Founder-Engineer with Safety Net',theme:'🟥',outcomes:['Real product with users','Initial validation signals','Startup credibility'],current:false},
+  ];
+  document.getElementById('roadmap-items').innerHTML=sems.map((s,i)=>`
+    <div class="rm-item${s.current?' current':''}">
+      ${s.current?'<div class="rm-now-tag">← YOU ARE HERE</div>':''}
+      <div class="rm-dot" style="background:${s.current?'var(--blue-l)':'var(--bg3)'};color:${s.current?'var(--blue)':'var(--t3)'}">S${4+i}</div>
+      <div style="flex:1">
+        <div class="rm-sem">${s.sem} — ${s.theme} ${s.phase}</div>
+        <div class="rm-theme">Identity: <strong>${s.identity}</strong></div>
+        <div class="rm-outcomes">${s.outcomes.map(o=>`✓ ${o}`).join(' · ')}</div>
+      </div>
+    </div>`).join('');
+}
+
+// ════════════════════════════════════════════════════════
+//  ANALYTICS
+// ════════════════════════════════════════════════════════
+function refreshAnalytics() {
+  calcStreak();
+  const total=S.dsa.length;
+  document.getElementById('an-streak').textContent=S.streak;
+  document.getElementById('an-dsa').textContent=total;
+  document.getElementById('an-dsa-big').textContent=total;
+  document.getElementById('an-dsa-bar').style.width=Math.min(total/150,1)*100+'%';
+  const l7=getLast7();
+  const fails=l7.filter(d=>{const l=S.dailyLogs.find(x=>x.date===d);return l&&l.score<50;}).length;
+  document.getElementById('an-fails').textContent=fails;
+  const now=new Date(); const month=now.toISOString().slice(0,7);
+  const ml=S.dailyLogs.filter(l=>l.date.startsWith(month));
+  const mpct=now.getDate()>0?Math.round(ml.filter(l=>l.score>=80).length/now.getDate()*100):0;
+  document.getElementById('an-monthly').textContent=mpct+'%';
+  const days=getLast7().reverse();
+  const el=document.getElementById('an-chart');
+  el.innerHTML=days.map(d=>{
+    const log=S.dailyLogs.find(l=>l.date===d); const score=log?log.score:null;
+    const col=score===null?'var(--bg3)':score>=80?'var(--green)':score>=50?'var(--amber)':'var(--red)';
+    const h=score!==null?Math.max(score*0.72,4):3;
+    const dn=new Date(d+'T00:00:00').toLocaleDateString('en',{weekday:'short'});
+    return `<div class="bar"><div class="bar-fill" style="background:${col};height:${h}px"></div><div class="bar-lbl">${dn}</div><div class="bar-val" style="color:${col}">${score!==null?score:''}</div></div>`;
+  }).join('');
+  const days30=[]; for(let i=29;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);days30.push(fmtD(d));}
+  document.getElementById('streak-grid').innerHTML=days30.map(d=>{
+    const log=S.dailyLogs.find(l=>l.date===d);
+    const cls=log?(log.score>=80?'hit':'miss'):'empty';
+    return `<div class="sd ${cls}" title="${d}: ${log?log.score+'%':'no data'}"></div>`;
+  }).join('');
+}
+
+// ════════════════════════════════════════════════════════
+//  AUDIT
+// ════════════════════════════════════════════════════════
+function auQ(q,a) {
+  S.auAns[q]=a;
+  ['y','n'].forEach(x=>{const el=document.getElementById('q'+q+x);if(el){el.className='ab';if(a===x)el.classList.add(x==='y'?'y-on':'n-on');}});
+}
+
+async function submitAudit() {
+  if(Object.values(S.auAns).some(v=>v===null)){toast('Answer all 4 questions');return;}
+  const ref=document.getElementById('au-reflect').value.trim();
+  const noCount=Object.values(S.auAns).filter(v=>v==='n').length;
+  const audit={date:todayStr(),answers:{...S.auAns},reflection:ref,noCount};
+  S.audits.push(audit);
+  if(noCount>=2&&ref) {
+    const failEntry={date:todayStr(),score:0,lH:0,lD:0,td:0,tt:0,output:'',block:ref,tH:7,tD:2};
+    S.dailyLogs.push(failEntry);
+    await dbSaveDayLog(failEntry);
+  }
+  S.auAns={1:null,2:null,3:null,4:null};
+  document.getElementById('au-reflect').value='';
+  [1,2,3,4].forEach(q=>['y','n'].forEach(a=>{const el=document.getElementById('q'+q+a);if(el)el.className='ab';}));
+  renderAudit();
+  toast('✓ Audit submitted');
+  await dbSaveAudit(audit);
+}
+
+function renderAudit() {
+  const ah=document.getElementById('audit-history');
+  const fl=document.getElementById('fail-log-el');
+  const auditsSorted=[...S.audits].sort((a,b)=>b.date.localeCompare(a.date));
+  ah.innerHTML=!auditsSorted.length?'<div style="font-size:11px;color:var(--t3)">No audits yet.</div>':auditsSorted.slice(0,5).map(a=>{
+    const yc=Object.values(a.answers).filter(v=>v==='y').length;
+    return `<div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px;margin-bottom:6px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+        <span style="font-family:var(--mono);font-size:9px;color:var(--t3)">${a.date}</span>
+        <span class="badge ${yc>=3?'b-green':yc>=2?'b-amber':'b-red'}">${yc}/4 YES</span>
+      </div>
+      ${a.reflection?`<div style="font-size:10px;color:var(--t2)">${esc(a.reflection)}</div>`:''}
+    </div>`;
+  }).join('');
+  const fails=S.dailyLogs.filter(l=>l.score<50&&l.block);
+  fl.innerHTML=!fails.length?'<div style="font-size:11px;color:var(--t3)">No failures. Keep it going.</div>':[...fails].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,5).map(f=>`<div style="background:var(--bg2);border-left:2px solid var(--red);border-radius:0 6px 6px 0;padding:8px 12px;margin-bottom:5px"><div style="font-family:var(--mono);font-size:8px;color:var(--t3);margin-bottom:3px">${f.date} — Score: ${f.score}</div><div style="font-size:11px;color:var(--t2)">${esc(f.block)}</div></div>`).join('');
+}
+
+// ════════════════════════════════════════════════════════
+//  REFRESH TODAY
+// ════════════════════════════════════════════════════════
+function refreshToday() {
+  calcStreak();
+  document.getElementById('stat-streak').textContent=S.streak;
+  document.getElementById('stat-dsa').textContent=S.dsa.length;
+  const dep=S.projects.filter(x=>x.status==='deployed').length;
+  document.getElementById('stat-proj').textContent=dep;
+  const today=todayStr();
+  const habitsDone=S.habits.filter(h=>h.logs[today]).length;
+  const habitPct=S.habits.length>0?Math.round(habitsDone/S.habits.length*100):0;
+  document.getElementById('stat-habits').textContent=habitPct+'%';
+  const pyStreak=S.habits.filter(h=>h.cat==='Python Daily').length>0?Math.min(Math.round((S.streak/30)*100),100):0;
+  document.getElementById('py-prog').textContent=pyStreak+'%'; document.getElementById('py-bar').style.width=pyStreak+'%';
+  const dsaN=S.dsa.length; const dsaPct=Math.min(Math.round(dsaN/150*100),100);
+  document.getElementById('dsa-prog').textContent=dsaN+'/150'; document.getElementById('dsa-bar').style.width=dsaPct+'%';
+  const beProj=S.projects.filter(p=>p.type==='Backend (FastAPI/REST)');
+  const beP=beProj.some(p=>p.status==='deployed')?100:beProj.length>0?40:0;
+  document.getElementById('be-prog').textContent=beP+'%'; document.getElementById('be-bar').style.width=beP+'%';
+  const mlProj=S.projects.filter(p=>p.type==='ML Project');
+  const mlP=mlProj.some(p=>p.status==='deployed')?100:mlProj.length>0?40:0;
+  document.getElementById('ml-prog').textContent=mlP+'%'; document.getElementById('ml-bar').style.width=mlP+'%';
+  const tt=S.tasks.filter(t=>!t.deadline||t.deadline===today);
+  const td=tt.filter(t=>t.done).length;
+  const el=document.getElementById('today-tasks-list');
+  const catColors={Python:'amber',DSA:'green',Backend:'blue',ML:'purple','IITM BS':'cyan','B.Tech':'blue',Projects:'green',Career:'amber'};
+  if(!tt.length) el.innerHTML='<div style="font-size:11px;color:var(--t3)">No tasks today. Add tasks with today\'s deadline →</div>';
+  else el.innerHTML=tt.map(t=>`<div class="task-item${t.done?' done':''}">
+    <div class="task-cb${t.done?' on':''}" onclick="toggleTask(${t.id})">${t.done?'✓':''}</div>
+    <span class="task-name${t.done?' done':''}">${esc(t.title)}</span>
+    <span class="badge b-${catColors[t.cat]||'blue'}" style="font-size:8px">${esc(t.cat)}</span>
+  </div>`).join('');
+  const tl=S.dailyLogs.find(l=>l.date===today);
+  if(tl){
+    document.getElementById('hero-score').textContent=tl.score;
+    document.getElementById('hero-score').style.color=tl.score>=80?'var(--green)':tl.score>=50?'var(--amber)':'var(--red)';
+    document.getElementById('hero-score-badge').innerHTML=scoreBadge(tl.score);
+  } else {
+    document.getElementById('hero-score').textContent='—';
+    document.getElementById('hero-score').style.color='var(--t3)';
+  }
+  renderTodayBlocks();
+  checkFails();
+}
+
+// ════════════════════════════════════════════════════════
+//  BOOT — load settings first, then Supabase data, then render
+// ════════════════════════════════════════════════════════
+async function boot() {
+  loadSettings();
+  try { document.getElementById('tk-d').value=todayStr(); document.getElementById('g-dl').value=todayStr(); } catch(e){}
+  tick(); setInterval(tick, 1000);
+  renderPomo();
+
+  // Load everything from Supabase (or localStorage fallback)
+  await loadFromSupabase();
+
+  // Render all sections
+  refreshToday();
+  renderTasks();
+  renderDSA();
+  renderProjects();
+  renderHabits();
+  renderGoals();
+  renderAudit();
+}
+
+boot();
+</script>
+</body>
+</html>
