@@ -1304,39 +1304,35 @@ async function dbSaveAudit(audit) {
 // ════════════════════════════════════════════════════════
 //  CLOCK
 // ════════════════════════════════════════════════════════
+function setEl(id,prop,val){const e=document.getElementById(id);if(e)e[prop]=val;}
 function tick() {
   const n = new Date();
-  document.getElementById('clock-time').textContent = n.toLocaleTimeString('en-IN',{hour12:false});
-  document.getElementById('clock-date').textContent = n.toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'});
-  document.getElementById('hero-date').textContent = n.toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'}).toUpperCase();
-
+  setEl('clock-time','textContent',n.toLocaleTimeString('en-IN',{hour12:false}));
+  setEl('clock-date','textContent',n.toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'}));
+  setEl('hero-date','textContent',n.toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'}).toUpperCase());
   const sem4End = new Date('2026-06-30');
   const diff = Math.ceil((sem4End - n) / 86400000);
-  document.getElementById('sem-countdown').textContent = diff > 0 ? diff : 0;
-
+  setEl('sem-countdown','textContent', diff > 0 ? diff : 0);
   const hr = n.getHours();
   const greet = hr < 12 ? 'Good morning,' : hr < 17 ? 'Good afternoon,' : 'Good evening,';
-  document.getElementById('hero-greeting').innerHTML = `${greet}<br><span class="highlight">Sahil. Let's execute.</span>`;
-
+  setEl('hero-greeting','innerHTML',`${greet}<br><span class="highlight">Sahil. Let's execute.</span>`);
   const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
   const dayName = days[n.getDay()];
   const dayTypes = {Mon:'TECH CORE',Tue:'ML + ACADEMICS',Wed:'TECH CORE',Thu:'ML + ACADEMICS',Fri:'TECH CORE',Sat:'BUILD DAY',Sun:'RECOVERY + REVIEW'};
   const dayColors = {Mon:'var(--blue)',Tue:'var(--purple)',Wed:'var(--blue)',Thu:'var(--purple)',Fri:'var(--blue)',Sat:'var(--green)',Sun:'var(--amber)'};
-  document.getElementById('hero-day-type').textContent = dayName + ' — ' + (dayTypes[dayName]||'');
-  document.getElementById('hero-focus-tag').innerHTML = `<span class="badge b-blue" style="color:${dayColors[dayName]||'var(--blue)'}">${dayTypes[dayName]||''}</span>`;
-
   const dayDescs = {
     Mon:'Python+DSA (2h) → Backend (2h) → IITM (2h) → B.Tech (1h)',
     Tue:'IITM deep work (2h) → ML (1.5h) → Python impl (1.5h) → DSA light + B.Tech (2h)',
     Wed:'Python+DSA (2h) → Projects (2h) → IITM (2h) → B.Tech (1h)',
     Thu:'IITM deep work (2h) → ML (1.5h) → Python impl (1.5h) → DSA light + B.Tech (2h)',
     Fri:'Python+DSA (2h) → Backend (2h) → IITM (2h) → B.Tech (1h)',
-    Sat:'Project progress → Deploy → GitHub cleanup → Resume/Portfolio (4–5h total)',
-    Sun:'Weekly audit → Plan next week → Light revision → Rest (2–3h)'
+    Sat:'Project progress → Deploy → GitHub cleanup → Resume/Portfolio (4-5h total)',
+    Sun:'Weekly audit → Plan next week → Light revision → Rest (2-3h)'
   };
-  document.getElementById('hero-day-desc').textContent = dayDescs[dayName] || '';
+  setEl('hero-day-type','textContent', dayName + ' — ' + (dayTypes[dayName]||''));
+  setEl('hero-day-tag','innerHTML',`<span class="badge b-blue" style="color:${dayColors[dayName]||'var(--blue)'}">${dayTypes[dayName]||''}</span>`);
+  setEl('hero-day-desc','textContent', dayDescs[dayName] || '');
 }
-
 // ════════════════════════════════════════════════════════
 //  NAV
 // ════════════════════════════════════════════════════════
@@ -2001,8 +1997,3 @@ boot();
 </script>
 </body>
 </html>
-
-
-
-
-
